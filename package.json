@@ -1,0 +1,29 @@
+{
+  "name": "@therealbenpai/djs-client",
+  "version": "1.0.0",
+  "description": "A simple Discord.JS bot client",
+  "main": "index.js",
+  "types": "@types/defs.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "discord.js",
+    "discord",
+    "bot",
+    "javascript",
+    "typescript",
+    "client",
+    "utilities",
+    "configurable"
+  ],
+  "author": "Benjamin",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "chalk-template": "^1.1.0",
+    "discord-api-types": "^0.37.37",
+    "discord.js": "^14.8.0",
+    "dotenv": "^16.0.3",
+    "fuse.js": "^7.0.0"
+  }
+}
