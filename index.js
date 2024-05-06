@@ -42,34 +42,6 @@ class Bot extends djs.Client {
             PredefinedMessages = new djs.Collection(),
             Statuses = new djs.Collection()
                 .set(0, { type: djs.ActivityType.Watching, name: 'The Server' });
-
-        this.stats = () => {
-            const botRam = process.memoryUsage().heapTotal;
-            const rawBRam = (botRam / 1024 ** 2);
-            const globalRam = os.totalmem() - os.freemem();
-            const rawGRam = (globalRam / 1024 ** 2);
-            return {
-                ping: client.ws.ping,
-                uptime: Utils.List.and(Utils.Time.elapsedTime(Math.floor(process.uptime())).split(', ')),
-                guilds: client.guilds.cache.size.toString(),
-                ram: {
-                    botOnly: {
-                        rawValue: (rawBRam > 1024 ? rawBRam / 1024 : rawBRam).toFixed(2),
-                        percentage: (botRam / os.totalmem() * 1e2).toFixed(2),
-                        unit: botRam / 1024 ** 3 > 1 ? 'GB' : 'MB',
-                    },
-                    global: {
-                        rawValue: (rawGRam > 1024 ? rawGRam / 1024 : rawGRam).toFixed(2),
-                        percentage: (globalRam / os.totalmem() * 1e2).toFixed(2),
-                        unit: globalRam / 1024 ** 3 > 1 ? 'GB' : 'MB',
-                    },
-                },
-            };
-        };
-        this.embed = () => new djs.EmbedBuilder({
-            footer: { text: '' },
-            color: 0x2F3136,
-        }).setTimestamp();
         this.runtimeStats = {
             commands: {
                 text: new Utils.RuntimeStatistics(),
@@ -91,20 +63,16 @@ class Bot extends djs.Client {
             },
             predefinedMessages: new Utils.RuntimeStatistics(),
         };
-        this.baseDir = process.cwd(),
-            this.configs = {
-                prefix: this.prefix,
-                defaults: {
-                    disabled: 'This command is currently disabled',
-                    noPerms: 'You do not have permission to use this command.',
-                    dmDisabled: 'This command is disabled in DMs.',
-                    invalidChannelType: 'This command cannot be used in this channel type.',
-                },
-            };
-        this.gRTS = (key) => eval(`this.runtimeStats.${key}`);
-        this.gev = (name) => this.runtimeStats.events.sEE[`${name}`] = new Utils.RuntimeStatistics();
-        this.regRTS = (key) => this.gRTS(key).reg();
-        this.bumpRTS = (key) => this.gRTS(key).exec();
+        this.baseDir = process.cwd();
+        this.configs = {
+            prefix: this.prefix,
+            defaults: {
+                disabled: 'This command is currently disabled',
+                noPerms: 'You do not have permission to use this command.',
+                dmDisabled: 'This command is disabled in DMs.',
+                invalidChannelType: 'This command cannot be used in this channel type.',
+            },
+        };
         this.Commands = Commands;
         this.Events = Events;
         this.Triggers = Triggers;
@@ -195,6 +163,37 @@ class Bot extends djs.Client {
 
         operations.forEach((s) => fs.readdirSync(s[0]).filter((f) => f !== 'example.js').map((f) => require(`${s[0]}/${f}`)).forEach(s[1]));
     }
+    embed = () => new djs.EmbedBuilder({
+        footer: { text: '' },
+        color: 0x2F3136,
+    }).setTimestamp()
+    stats = () => {
+        const botRam = process.memoryUsage().heapTotal;
+        const rawBRam = (botRam / 1024 ** 2);
+        const globalRam = os.totalmem() - os.freemem();
+        const rawGRam = (globalRam / 1024 ** 2);
+        return {
+            ping: client.ws.ping,
+            uptime: Utils.List.and(Utils.Time.elapsedTime(Math.floor(process.uptime())).split(', ')),
+            guilds: client.guilds.cache.size.toString(),
+            ram: {
+                botOnly: {
+                    rawValue: (rawBRam > 1024 ? rawBRam / 1024 : rawBRam).toFixed(2),
+                    percentage: (botRam / os.totalmem() * 1e2).toFixed(2),
+                    unit: botRam / 1024 ** 3 > 1 ? 'GB' : 'MB',
+                },
+                global: {
+                    rawValue: (rawGRam > 1024 ? rawGRam / 1024 : rawGRam).toFixed(2),
+                    percentage: (globalRam / os.totalmem() * 1e2).toFixed(2),
+                    unit: globalRam / 1024 ** 3 > 1 ? 'GB' : 'MB',
+                },
+            },
+        };
+    }
+    gRTS = (key) => eval(`this.runtimeStats.${key}`);
+    gev = (name) => this.runtimeStats.events.sEE[`${name}`] = new Utils.RuntimeStatistics();
+    regRTS = (key) => this.gRTS(key).reg();
+    bumpRTS = (key) => this.gRTS(key).exec();
     start() {
         this.login(this.token);
         new REST({ version: '10' })

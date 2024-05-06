@@ -51,6 +51,16 @@ declare namespace Interfaces {
             invalidChannelType: string;
         }
     }
+    interface BotOptions {
+        buttonsDir: string | undefined;
+        commandsDir: string | undefined;
+        contextMenusDir: string | undefined;
+        eventsDir: string | undefined;
+        modalComponentsDir: string | undefined;
+        predefinedMessagesDir: string | undefined;
+        selectMenusDir: string | undefined;
+        triggersDir: string | undefined;
+    }
     interface Bot<K extends boolean = boolean> extends djs.Client<K> {
         token: string;
         prefix: string;
@@ -85,7 +95,8 @@ declare namespace Interfaces {
         Components: djs.Collection<'buttons', Classes.ButtonComponent> & djs.Collection<'contextMenus', Classes.ContextMenuComponent> & djs.Collection<'modals', Classes.ModalComponent> & djs.Collection<'selectMenus', Classes.SelectMenuComponent>;
         PredefinedMessages: djs.Collection<string, Classes.Message>;
         Statuses: djs.Collection<number, djs.ActivityOptions>;
-        Utils: Classes.Utilities
+        Utils: Classes.Utilities;
+        start(): void;
     }
     interface Components {
         /** @inheritdoc ButtonComponent */
@@ -410,32 +421,42 @@ declare namespace Classes {
         static qFooter<X, Y>(text: string, url: string | undefined): { text: X, url: Y };
     }
     class Bot implements Interfaces.Bot {
-        /** */
         token: string;
-        /** */
         prefix: string;
-        /** */
         id: string;
-        /** */
         client: Interfaces.Bot;
-        /** */
         buttonsDir: string;
-        /** */
         commandsDir: string | undefined;
-        /** */
         contextMenusDir: string | undefined;
-        /** */
         eventsDir: string | undefined;
-        /** */
         modalComponentsDir: string | undefined;
-        /** */
         predefinedMessagesDir: string | undefined;
-        /** */
         selectMenusDir: string | undefined;
-        /** */
         triggersDir: string | undefined;
         constructor(token: string, prefix: string, id: string, options: Interfaces.BotOptions | undefined);
-        login(): void;
+        start(): void;
+        stats(): {
+            ping: number;
+            guilds: number;
+            uptime: string;
+            ram: Interfaces.HardwareStatsObject;
+            cpu: Interfaces.HardwareStatsObject;
+        };
+        embed(): djs.EmbedBuilder;
+        runtimeStats: Interfaces.RTSBot;
+        baseDir: string;
+        configs: Interfaces.BotConfigs;
+        gRTS(key: string): Interfaces.RTS;
+        gev(event: djs.Events): Interfaces.RTS;
+        regRTS(key: string): number;
+        bumpRTS(key: string): number;
+        Commands: djs.Collection<string, Classes.Command>;
+        Triggers: djs.Collection<string, Classes.Trigger>;
+        Messages: djs.Collection<string, Classes.Message>;
+        Components: djs.Collection<'buttons', Classes.ButtonComponent> & djs.Collection<'contextMenus', Classes.ContextMenuComponent> & djs.Collection<'modals', Classes.ModalComponent> & djs.Collection<'selectMenus', Classes.SelectMenuComponent>;
+        PredefinedMessages: djs.Collection<string, Classes.Message>;
+        Statuses: djs.Collection<number, djs.ActivityOptions>;
+        Utils: Classes.Utilities;
     }
     /** The Triggers Object */
     class Trigger {
