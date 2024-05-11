@@ -141,7 +141,6 @@ declare namespace Interfaces {
         RuntimeStatistics: Classes.RTS;
     }
 }
-
 declare namespace Classes {
     class TriggerBase {
         /** Whether or not the trigger is activated */
@@ -447,9 +446,10 @@ declare namespace Classes {
         baseDir: string;
         configs: Interfaces.BotConfigs;
         gRTS(key: string): Interfaces.RTS;
-        gev(event: djs.Events): Interfaces.RTS;
+        gev(event: djs.Events): this;
         regRTS(key: string): number;
         bumpRTS(key: string): number;
+        setBranding(branding: djs.EmbedData): this;
         Commands: djs.Collection<string, Classes.Command>;
         Triggers: djs.Collection<string, Classes.Trigger>;
         Messages: djs.Collection<string, Classes.Message>;
@@ -457,7 +457,6 @@ declare namespace Classes {
         PredefinedMessages: djs.Collection<string, Classes.Message>;
         Statuses: djs.Collection<number, djs.ActivityOptions>;
         Utils: Classes.Utilities;
-        static Utils: Classes.Utilities;
     }
     /** The Triggers Object */
     class Trigger {
@@ -720,15 +719,12 @@ declare namespace Classes {
         RuntimeStatistics: RTS;
     }
 }
-
 declare namespace Enums {
 
 }
-
 declare namespace Types {
 
 }
-
 declare module "@therealbenpai/djs-client" {
     export const
         Client: Classes.Bot,

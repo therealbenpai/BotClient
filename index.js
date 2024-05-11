@@ -15,43 +15,26 @@ class Bot extends djs.Client {
                 status: djs.PresenceUpdateStatus.Online,
             },
         });
-        this.prefix = prefix;
-        this.token = token;
-        this.id = id;
-        const {
-            buttonsDir,
-            commandsDir,
-            contextMenusDir,
-            eventsDir,
-            modalComponentsDir,
-            predefinedMessagesDir,
-            selectMenusDir,
-            triggersDir,
-        } = options;
-        this.buttonsDir = buttonsDir;
-        this.commandsDir = commandsDir;
-        this.contextMenusDir = contextMenusDir;
-        this.eventsDir = eventsDir;
-        this.modalComponentsDir = modalComponentsDir;
-        this.predefinedMessagesDir = predefinedMessagesDir;
-        this.selectMenusDir = selectMenusDir;
-        this.triggersDir = triggersDir;
-        const
-            Buttons = new djs.Collection(),
-            ContextMenus = new djs.Collection(),
-            Modals = new djs.Collection(),
-            SelectMenus = new djs.Collection(),
-            Commands = new djs.Collection(),
-            Events = new djs.Collection(),
-            Triggers = new djs.Collection(),
-            Components = new djs.Collection()
-                .set('buttons', Buttons)
-                .set('contextMenus', ContextMenus)
-                .set('modals', Modals)
-                .set('selectMenus', SelectMenus),
-            PredefinedMessages = new djs.Collection(),
-            Statuses = new djs.Collection()
-                .set(0, { type: djs.ActivityType.Watching, name: 'The Server' });
+        Object.assign(this, options, { id, prefix, token });
+        const [
+            Buttons,
+            ContextMenus,
+            Modals,
+            SelectMenus,
+            Commands,
+            Events,
+            Triggers,
+            Components,
+            PredefinedMessages,
+            Statuses,
+        ] = new Array(10).map(() => new djs.Collection());
+        Components
+            .set('buttons', Buttons)
+            .set('contextMenus', ContextMenus)
+            .set('modals', Modals)
+            .set('selectMenus', SelectMenus);
+        Statuses
+            .set(0, { type: djs.ActivityType.Watching, name: 'The Server' });
         this.runtimeStats = {
             commands: {
                 text: new Utils.RuntimeStatistics(),
@@ -90,91 +73,118 @@ class Bot extends djs.Client {
         this.PredefinedMessages = PredefinedMessages;
         this.Statuses = Statuses;
         this.Utils = Utils;
-
+        this.branding = {
+            footer: { text: '' },
+            color: 0x2F3136,
+        }
         this.interactions = [];
-        const operations = new Array()
-            .concat(this.eventsDir ? [[
-                this.eventsDir,
-                (event) => {
-                    Events.set(event.event, event);
-                    this.regRTS('events');
-                    this.gev(event.event);
-                    this.on(event.event, (...args) => {
-                        this.bumpRTS(`events.sEE.${event.event}`);
-                        return event.execute(this, ...args);
-                    });
-                },
-            ]] : [])
-            .concat(this.commandsDir ? [[
-                this.commandsDir,
-                (command) => {
-                    Commands.set(command.name, command);
-                    if (command.type.text) this.regRTS('commands.text');
-                    if (command.type.slash) {
-                        this.regRTS('commands.slash');
+        const operations = Array
+            .of(
+                this.commandsDir ? [[
+                    this.commandsDir,
+                    (command) => {
+                        Commands.set(command.name, command);
+                        if (command.type.text) this.regRTS('commands.text');
+                        if (command.type.slash) {
+                            this.regRTS('commands.slash');
+                            this.interactions.push(command.data.toJSON());
+                        }
+                    },
+                ]] : [],
+                this.triggersDir ? [[
+                    this.triggersDir,
+                    (trigger) => {
+                        Triggers.set(trigger.name, trigger);
+                        Object.keys(trigger.triggerConfig)
+                            .forEach((key) => trigger.triggerConfig[key].activated
+                                ? this.regRTS(`triggers.${key}`)
+                                : null
+                            );
+                    },
+                ]] : [],
+                this.buttonsDir ? [[
+                    this.buttonsDir,
+                    (command) => {
+                        Components.get('buttons').set(command.name, command);
+                        this.regRTS('components.buttons');
+                    },
+                ]] : [],
+                this.contextMenusDir ? [[
+                    this.contextMenusDir,
+                    (command) => {
+                        Components.get('contextMenus').set(command.name, command);
+                        this.regRTS('components.contextMenus');
                         this.interactions.push(command.data.toJSON());
-                    }
-                },
-            ]] : [])
-            .concat(this.triggersDir ? [[
-                this.triggersDir,
-                (trigger) => {
-                    Triggers.set(trigger.name, trigger);
-                    Object.keys(trigger.triggerConfig)
-                        .forEach((key) => trigger.triggerConfig[key].activated
-                            ? this.regRTS(`triggers.${key}`)
-                            : null
-                        );
-                },
-            ]] : [])
-            .concat(this.buttonsDir ? [[
-                this.buttonsDir,
-                (command) => {
-                    Components.get('buttons').set(command.name, command);
-                    this.regRTS('components.buttons');
-                },
-            ]] : [])
-            .concat(this.contextMenusDir ? [[
-                this.contextMenusDir,
-                (command) => {
-                    Components.get('contextMenus').set(command.name, command);
-                    this.regRTS('components.contextMenus');
-                    this.interactions.push(command.data.toJSON());
-                },
-            ]] : [])
-            .concat(this.selectMenusDir ? [[
-                this.selectMenusDir,
-                (command) => {
-                    Components.get('selectMenus').set(command.name, command);
-                    this.regRTS('components.selectMenus');
-                },
-            ]] : [])
-            .concat(this.modalComponentsDir ? [[
-                this.modalComponentsDir,
-                (command) => {
-                    Components.get('modals').set(command.name, command);
-                    this.regRTS('components.modals');
-                },
-            ]] : [])
-            .concat(this.predefinedMessagesDir ? [[
-                this.predefinedMessagesDir,
-                (msg) => {
-                    const gv = msg.getValue;
-                    PredefinedMessages.set(msg.name, Object.assign(msg, { getValue: (c) => { this.bumpRTS('predefinedMessages'); return gv(c); } }));
-                    this.regRTS('predefinedMessages');
-                },
-            ]] : []);
-
+                    },
+                ]] : [],
+                this.selectMenusDir ? [[
+                    this.selectMenusDir,
+                    (command) => {
+                        Components.get('selectMenus').set(command.name, command);
+                        this.regRTS('components.selectMenus');
+                    },
+                ]] : [],
+                this.modalComponentsDir ? [[
+                    this.modalComponentsDir,
+                    (command) => {
+                        Components.get('modals').set(command.name, command);
+                        this.regRTS('components.modals');
+                    },
+                ]] : [],
+                this.predefinedMessagesDir ? [[
+                    this.predefinedMessagesDir,
+                    (msg) => {
+                        const gv = msg.getValue;
+                        PredefinedMessages.set(msg.name, Object.assign(msg, { getValue: (c) => { this.bumpRTS('predefinedMessages'); return gv(c); } }));
+                        this.regRTS('predefinedMessages');
+                    },
+                ]] : [],
+            )
+            .filter((s) => s.length > 0)
+            .flat(1);
         // ? Sectors:
         // ? 0: Directory,
         // ? 1: Operation
-
         operations.forEach((s) => fs.readdirSync(s[0]).filter((f) => f !== 'example.js').map((f) => require(`${s[0]}/${f}`)).forEach(s[1]));
+        this.on('ready', () => {
+            this.regRTS('events');
+            this.gev('ready');
+            this.bumpRTS(`events.sEE.ready`);
+            const currentStats = {
+                ping: Math.max(this.ws.ping, 0),
+                guilds: this.guilds.cache.size,
+                users: this.users.cache.size,
+                channels: this.channels.cache.size,
+                commands: this.Commands.size,
+                components: {
+                    contextMenus: this.Components.get('contextMenus').size,
+                    buttons: this.Components.get('buttons').size,
+                    selectMenus: this.Components.get('selectMenus').size,
+                    modals: this.Components.get('modals').size,
+                },
+                events: this.Events.size,
+                triggers: this.Triggers.size,
+            };
+            import('chalk-template')
+                .then(({ template }) => console.log(template(
+                    Array.of(
+                        `ly logged in as {red ${this.user.username}}!`,
+                        `Ping: {rgb(255,127,0) ${currentStats.ping} ms}`,
+                        `Guilds: {yellow ${currentStats.guilds}}`,
+                        `Users: {green ${currentStats.users}}`,
+                        `Channels: {blue ${currentStats.channels}}`,
+                        `Commands: {rgb(180,0,250) ${currentStats.commands}}`,
+                        `Components: {rgb(255,100,100) ${Object.values(currentStats.components).reduce(Utils.Reduce.add)}}`,
+                        `Events: {white ${currentStats.events}}`,
+                        `Triggers: {grey ${currentStats.triggers}}`,
+                        `Pre-defined messages: {cyan ${this.PredefinedMessages.size}}`,
+                        `Statuses selection size: {rgb(0,255,255) ${this.Statuses.size}}`,
+                    ).map((m) => `{bold [READY]} Current ${m}`).join('\n')
+                )))
+            setInterval(() => client.user.setPresence({ activities: [this.Statuses.random()] }), 15e3)
+        })
     }
-    embed = () => new djs.EmbedBuilder({
-        footer: { text: '' },
-        color: 0x2F3136,
-    }).setTimestamp()
+    embed = () => new djs.EmbedBuilder(this.branding).setTimestamp()
     stats = () => {
         const botRam = process.memoryUsage().heapTotal;
         const rawBRam = (botRam / 1024 ** 2);
@@ -199,9 +209,10 @@ class Bot extends djs.Client {
         };
     }
     gRTS = (key) => eval(`this.runtimeStats.${key}`);
-    gev = (name) => this.runtimeStats.events.sEE[`${name}`] = new Utils.RuntimeStatistics();
+    gev = (name) => Object.assign(this.runtimeStats.events.sEE, { [`${name}`]: new Utils.RuntimeStatistics() });
     regRTS = (key) => this.gRTS(key).reg();
     bumpRTS = (key) => this.gRTS(key).exec();
+    setBranding = (branding) => Object.assign(this.branding, branding);
     start() {
         new REST({ version: '10' })
             .setToken(this.token)
@@ -211,7 +222,7 @@ class Bot extends djs.Client {
     }
 }
 
-module.exports = {
+Object.assign(module.exports, {
     Client: Bot,
     Utils,
-}
+})
