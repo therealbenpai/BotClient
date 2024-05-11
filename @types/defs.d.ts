@@ -713,10 +713,14 @@ declare namespace Classes {
         Initializers: Interfaces.DiscordInits;
     }
     class Utilities implements Interfaces.Utils {
-        static Discord: DiscordClass;
-        static RuntimeStatistics: RTS;
-        Discord: DiscordClass;
-        RuntimeStatistics: RTS;
+        static Discord: typeof DiscordClass;
+        static RuntimeStatistics: typeof RTS;
+        static Text: typeof Text;
+        static List: typeof List;
+        Discord: typeof DiscordClass;
+        RuntimeStatistics: typeof RTS;
+        Text: typeof Text;
+        List: typeof List;
     }
 }
 declare namespace Enums {
@@ -727,6 +731,6 @@ declare namespace Types {
 }
 declare module "@therealbenpai/djs-client" {
     export const
-        Client = Classes.Bot,
-        Utils = Classes.Utilities;
+        Client: typeof Classes.Bot,
+        Utils: typeof Classes.Utilities;
 }

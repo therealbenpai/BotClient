@@ -16,25 +16,22 @@ class Bot extends djs.Client {
             },
         });
         Object.assign(this, options, { id, prefix, token });
-        const [
-            Buttons,
-            ContextMenus,
-            Modals,
-            SelectMenus,
-            Commands,
-            Events,
-            Triggers,
-            Components,
-            PredefinedMessages,
-            Statuses,
-        ] = new Array(10).map(() => new djs.Collection());
-        Components
-            .set('buttons', Buttons)
-            .set('contextMenus', ContextMenus)
-            .set('modals', Modals)
-            .set('selectMenus', SelectMenus);
-        Statuses
-            .set(0, { type: djs.ActivityType.Watching, name: 'The Server' });
+        const
+            Buttons = new djs.Collection(),
+            ContextMenus = new djs.Collection(),
+            Modals = new djs.Collection(),
+            SelectMenus = new djs.Collection(),
+            Commands = new djs.Collection(),
+            Events = new djs.Collection(),
+            Triggers = new djs.Collection(),
+            Components = new djs.Collection()
+                .set('buttons', Buttons)
+                .set('contextMenus', ContextMenus)
+                .set('modals', Modals)
+                .set('selectMenus', SelectMenus),
+            PredefinedMessages = new djs.Collection(),
+            Statuses = new djs.Collection()
+                .set(0, { type: djs.ActivityType.Watching, name: 'The Server' });
         this.runtimeStats = {
             commands: {
                 text: new Utils.RuntimeStatistics(),
@@ -69,6 +66,10 @@ class Bot extends djs.Client {
         this.Commands = Commands;
         this.Events = Events;
         this.Triggers = Triggers;
+        this.Buttons = Buttons;
+        this.ContextMenus = ContextMenus;
+        this.Modals = Modals;
+        this.SelectMenus = SelectMenus;
         this.Components = Components;
         this.PredefinedMessages = PredefinedMessages;
         this.Statuses = Statuses;
@@ -105,6 +106,7 @@ class Bot extends djs.Client {
                 this.buttonsDir ? [[
                     this.buttonsDir,
                     (command) => {
+                        Buttons.set(command.name, command);
                         Components.get('buttons').set(command.name, command);
                         this.regRTS('components.buttons');
                     },
@@ -112,6 +114,7 @@ class Bot extends djs.Client {
                 this.contextMenusDir ? [[
                     this.contextMenusDir,
                     (command) => {
+                        ContextMenus.set(command.name, command);
                         Components.get('contextMenus').set(command.name, command);
                         this.regRTS('components.contextMenus');
                         this.interactions.push(command.data.toJSON());
@@ -120,6 +123,7 @@ class Bot extends djs.Client {
                 this.selectMenusDir ? [[
                     this.selectMenusDir,
                     (command) => {
+                        SelectMenus.set(command.name, command);
                         Components.get('selectMenus').set(command.name, command);
                         this.regRTS('components.selectMenus');
                     },
@@ -127,6 +131,7 @@ class Bot extends djs.Client {
                 this.modalComponentsDir ? [[
                     this.modalComponentsDir,
                     (command) => {
+                        Modals.set(command.name, command);
                         Components.get('modals').set(command.name, command);
                         this.regRTS('components.modals');
                     },
@@ -150,33 +155,18 @@ class Bot extends djs.Client {
             this.regRTS('events');
             this.gev('ready');
             this.bumpRTS(`events.sEE.ready`);
-            const currentStats = {
-                ping: Math.max(this.ws.ping, 0),
-                guilds: this.guilds.cache.size,
-                users: this.users.cache.size,
-                channels: this.channels.cache.size,
-                commands: this.Commands.size,
-                components: {
-                    contextMenus: this.Components.get('contextMenus').size,
-                    buttons: this.Components.get('buttons').size,
-                    selectMenus: this.Components.get('selectMenus').size,
-                    modals: this.Components.get('modals').size,
-                },
-                events: this.Events.size,
-                triggers: this.Triggers.size,
-            };
             import('chalk-template')
                 .then(({ template }) => console.log(template(
                     Array.of(
                         `ly logged in as {red ${this.user.username}}!`,
-                        `Ping: {rgb(255,127,0) ${currentStats.ping} ms}`,
-                        `Guilds: {yellow ${currentStats.guilds}}`,
-                        `Users: {green ${currentStats.users}}`,
-                        `Channels: {blue ${currentStats.channels}}`,
-                        `Commands: {rgb(180,0,250) ${currentStats.commands}}`,
-                        `Components: {rgb(255,100,100) ${Object.values(currentStats.components).reduce(Utils.Reduce.add)}}`,
-                        `Events: {white ${currentStats.events}}`,
-                        `Triggers: {grey ${currentStats.triggers}}`,
+                        `Ping: {rgb(255,127,0) ${Math.max(this.ws.ping, 0)} ms}`,
+                        `Guilds: {yellow ${this.guilds.cache.size}}`,
+                        `Users: {green ${this.users.cache.size}}`,
+                        `Channels: {blue ${this.channels.cache.size}}`,
+                        `Commands: {rgb(180,0,250) ${Commands.size}}`,
+                        `Components: {rgb(255,100,100) ${Modals.size + Buttons.size + SelectMenus.size + ContextMenus.size}}`,
+                        `Events: {white ${Events.size}}`,
+                        `Triggers: {grey ${Triggers.size}}`,
                         `Pre-defined messages: {cyan ${this.PredefinedMessages.size}}`,
                         `Statuses selection size: {rgb(0,255,255) ${this.Statuses.size}}`,
                     ).map((m) => `{bold [READY]} Current ${m}`).join('\n')
