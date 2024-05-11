@@ -84,11 +84,12 @@ class Bot extends djs.Client {
                 this.eventsDir,
                 (event) => {
                     this.regRTS('events');
-                    this.gev(event.name);
-                    Events.set(event.name, event);
-                    this.on(event.name, (...args) => {
-                        this.bumpRTS(`events.sEE.${event.name}`);
-                        event.exec(this, ...args)
+                    this.gev(event.event);
+                    Events.set(event.event, event);
+                    console.log(`[EVENT] Registered ${event.event}`);
+                    this.on(event.event, (...args) => {
+                        this.bumpRTS(`events.sEE.${event.event}`);
+                        event.execute(this, ...args)
                     });
                 },
             ] : null,
