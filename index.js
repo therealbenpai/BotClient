@@ -171,7 +171,7 @@ class Bot extends djs.Client {
                         `Statuses selection size: {rgb(0,255,255) ${this.Statuses.size}}`,
                     ).map((m) => `{bold [READY]} Current ${m}`).join('\n')
                 )))
-            setInterval(() => client.user.setPresence({ activities: [this.Statuses.random()] }), 15e3)
+            setInterval(() => this.user.setPresence({ activities: [this.Statuses.random()] }), 15e3)
         })
     }
     embed = () => new djs.EmbedBuilder(this.branding).setTimestamp()
