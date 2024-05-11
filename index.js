@@ -18,14 +18,24 @@ class Bot extends djs.Client {
         this.prefix = prefix;
         this.token = token;
         this.id = id;
-        this.buttonsDir = options.buttonsDir || null;
-        this.commandsDir = options.commandsDir || null;
-        this.contextMenusDir = options.contextMenusDir || null;
-        this.eventsDir = options.eventsDir || null;
-        this.modalComponentsDir = options.modalComponentsDir || null;
-        this.predefinedMessagesDir = options.predefinedMessagesDir || null;
-        this.selectMenusDir = options.selectMenusDir || null;
-        this.triggersDir = options.triggersDir || null;
+        const {
+            buttonsDir,
+            commandsDir,
+            contextMenusDir,
+            eventsDir,
+            modalComponentsDir,
+            predefinedMessagesDir,
+            selectMenusDir,
+            triggersDir,
+        } = options;
+        this.buttonsDir = buttonsDir;
+        this.commandsDir = commandsDir;
+        this.contextMenusDir = contextMenusDir;
+        this.eventsDir = eventsDir;
+        this.modalComponentsDir = modalComponentsDir;
+        this.predefinedMessagesDir = predefinedMessagesDir;
+        this.selectMenusDir = selectMenusDir;
+        this.triggersDir = triggersDir;
         const
             Buttons = new djs.Collection(),
             ContextMenus = new djs.Collection(),
@@ -159,8 +169,6 @@ class Bot extends djs.Client {
         // ? 0: Directory,
         // ? 1: Operation
 
-        this.client = client;
-
         operations.forEach((s) => fs.readdirSync(s[0]).filter((f) => f !== 'example.js').map((f) => require(`${s[0]}/${f}`)).forEach(s[1]));
     }
     embed = () => new djs.EmbedBuilder({
@@ -173,9 +181,9 @@ class Bot extends djs.Client {
         const globalRam = os.totalmem() - os.freemem();
         const rawGRam = (globalRam / 1024 ** 2);
         return {
-            ping: client.ws.ping,
+            ping: this.ws.ping,
             uptime: Utils.List.and(Utils.Time.elapsedTime(Math.floor(process.uptime())).split(', ')),
-            guilds: client.guilds.cache.size.toString(),
+            guilds: this.guilds.cache.size.toString(),
             ram: {
                 botOnly: {
                     rawValue: (rawBRam > 1024 ? rawBRam / 1024 : rawBRam).toFixed(2),
@@ -195,17 +203,12 @@ class Bot extends djs.Client {
     regRTS = (key) => this.gRTS(key).reg();
     bumpRTS = (key) => this.gRTS(key).exec();
     start() {
-        this.login(this.token);
         new REST({ version: '10' })
             .setToken(this.token)
             .put(Routes.applicationCommands(this.id), { body: this.interactions })
             .catch(console.error);
+        this.login(this.token);
     }
 }
 
-module.exports = Object.assign({}, djs, { Client: Bot });
-
-module.exports = {
-    Client: Bot,
-    ...djs
-}
+module.exports = Bot
