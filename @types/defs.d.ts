@@ -730,5 +730,7 @@ declare namespace Types {
 }
 
 declare module "@therealbenpai/djs-client" {
-    export default Classes.Bot;
+    export const
+        Client: Classes.Bot,
+        Utils: Classes.Utilities;
 }

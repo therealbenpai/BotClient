@@ -209,7 +209,9 @@ class Bot extends djs.Client {
             .catch(console.error);
         this.login(this.token);
     }
-    static Utils = Utils;
 }
 
-module.exports = Bot
+module.exports = {
+    Client: Bot,
+    Utils,
+}
