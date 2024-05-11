@@ -79,78 +79,73 @@ class Bot extends djs.Client {
             color: 0x2F3136,
         }
         this.interactions = [];
-        const operations = Array
-            .of(
-                this.commandsDir ? [[
-                    this.commandsDir,
-                    (command) => {
-                        Commands.set(command.name, command);
-                        if (command.type.text) this.regRTS('commands.text');
-                        if (command.type.slash) {
-                            this.regRTS('commands.slash');
-                            this.interactions.push(command.data.toJSON());
-                        }
-                    },
-                ]] : [],
-                this.triggersDir ? [[
-                    this.triggersDir,
-                    (trigger) => {
-                        Triggers.set(trigger.name, trigger);
-                        Object.keys(trigger.triggerConfig)
-                            .forEach((key) => trigger.triggerConfig[key].activated
-                                ? this.regRTS(`triggers.${key}`)
-                                : null
-                            );
-                    },
-                ]] : [],
-                this.buttonsDir ? [[
-                    this.buttonsDir,
-                    (command) => {
-                        Buttons.set(command.name, command);
-                        Components.get('buttons').set(command.name, command);
-                        this.regRTS('components.buttons');
-                    },
-                ]] : [],
-                this.contextMenusDir ? [[
-                    this.contextMenusDir,
-                    (command) => {
-                        ContextMenus.set(command.name, command);
-                        Components.get('contextMenus').set(command.name, command);
-                        this.regRTS('components.contextMenus');
+        Array.of(
+            this.commandsDir ? [
+                this.commandsDir,
+                (command) => {
+                    Commands.set(command.name, command);
+                    if (command.type.text) this.regRTS('commands.text');
+                    if (command.type.slash) {
+                        this.regRTS('commands.slash');
                         this.interactions.push(command.data.toJSON());
-                    },
-                ]] : [],
-                this.selectMenusDir ? [[
-                    this.selectMenusDir,
-                    (command) => {
-                        SelectMenus.set(command.name, command);
-                        Components.get('selectMenus').set(command.name, command);
-                        this.regRTS('components.selectMenus');
-                    },
-                ]] : [],
-                this.modalComponentsDir ? [[
-                    this.modalComponentsDir,
-                    (command) => {
-                        Modals.set(command.name, command);
-                        Components.get('modals').set(command.name, command);
-                        this.regRTS('components.modals');
-                    },
-                ]] : [],
-                this.predefinedMessagesDir ? [[
-                    this.predefinedMessagesDir,
-                    (msg) => {
-                        const gv = msg.getValue;
-                        PredefinedMessages.set(msg.name, Object.assign(msg, { getValue: (c) => { this.bumpRTS('predefinedMessages'); return gv(c); } }));
-                        this.regRTS('predefinedMessages');
-                    },
-                ]] : [],
-            )
-            .filter((s) => s.length > 0)
-            .flat(1);
-        // ? Sectors:
-        // ? 0: Directory,
-        // ? 1: Operation
-        operations.forEach((s) => fs.readdirSync(s[0]).filter((f) => f !== 'example.js').map((f) => require(`${s[0]}/${f}`)).forEach(s[1]));
+                    }
+                },
+            ] : null,
+            this.triggersDir ? [
+                this.triggersDir,
+                (trigger) => {
+                    Triggers.set(trigger.name, trigger);
+                    Object.keys(trigger.triggerConfig)
+                        .forEach((key) => trigger.triggerConfig[key].activated
+                            ? this.regRTS(`triggers.${key}`)
+                            : null
+                        );
+                },
+            ] : null,
+            this.buttonsDir ? [
+                this.buttonsDir,
+                (command) => {
+                    Buttons.set(command.name, command);
+                    Components.get('buttons').set(command.name, command);
+                    this.regRTS('components.buttons');
+                },
+            ] : null,
+            this.contextMenusDir ? [
+                this.contextMenusDir,
+                (command) => {
+                    ContextMenus.set(command.name, command);
+                    Components.get('contextMenus').set(command.name, command);
+                    this.regRTS('components.contextMenus');
+                    this.interactions.push(command.data.toJSON());
+                },
+            ] : null,
+            this.selectMenusDir ? [
+                this.selectMenusDir,
+                (command) => {
+                    SelectMenus.set(command.name, command);
+                    Components.get('selectMenus').set(command.name, command);
+                    this.regRTS('components.selectMenus');
+                },
+            ] : null,
+            this.modalComponentsDir ? [
+                this.modalComponentsDir,
+                (command) => {
+                    Modals.set(command.name, command);
+                    Components.get('modals').set(command.name, command);
+                    this.regRTS('components.modals');
+                },
+            ] : null,
+            this.predefinedMessagesDir ? [
+                this.predefinedMessagesDir,
+                (msg) => {
+                    const gv = msg.getValue;
+                    PredefinedMessages.set(msg.name, Object.assign(msg, { getValue: (c) => { this.bumpRTS('predefinedMessages'); return gv(c); } }));
+                    this.regRTS('predefinedMessages');
+                },
+            ] : null,
+        )
+            .filter((s) => s !== null)
+            .forEach((s) => fs.readdirSync(s[0]).filter((f) => f !== 'example.js').map((f) => require(`${s[0]}/${f}`)).forEach(s[1]));
         this.on('ready', () => {
             this.regRTS('events');
             this.gev('ready');
