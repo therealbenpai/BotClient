@@ -80,6 +80,18 @@ class Bot extends djs.Client {
         }
         this.interactions = [];
         Array.of(
+            this.eventsDir ? [
+                this.eventsDir,
+                (event) => {
+                    this.regRTS('events');
+                    this.gev(event.name);
+                    Events.set(event.name, event);
+                    this.on(event.name, (...args) => {
+                        this.bumpRTS(`events.sEE.${event.name}`);
+                        event.exec(this, ...args)
+                    });
+                },
+            ] : null,
             this.commandsDir ? [
                 this.commandsDir,
                 (command) => {
