@@ -457,6 +457,7 @@ declare namespace Classes {
         PredefinedMessages: djs.Collection<string, Classes.Message>;
         Statuses: djs.Collection<number, djs.ActivityOptions>;
         Utils: Classes.Utilities;
+        static Utils: Classes.Utilities;
     }
     /** The Triggers Object */
     class Trigger {
@@ -729,5 +730,5 @@ declare namespace Types {
 }
 
 declare module "@therealbenpai/djs-client" {
-    const Bot: Classes.Bot;
+    export default Classes.Bot;
 }
