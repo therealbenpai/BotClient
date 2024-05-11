@@ -131,7 +131,7 @@ declare namespace Interfaces {
         Message: typeof Classes.Message;
         Components: typeof Classes.Components;
         Event: typeof Classes.Event;
-    }  
+    }
     interface Discord {
         Utils: DiscordUtils;
         Initializers: DiscordInits;
@@ -727,6 +727,6 @@ declare namespace Types {
 }
 declare module "@therealbenpai/djs-client" {
     export const
-        Client: Classes.Bot,
-        Utils: Classes.Utilities;
+        Client = Classes.Bot,
+        Utils = Classes.Utilities;
 }
