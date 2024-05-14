@@ -8,17 +8,17 @@ declare namespace Interfaces {
         user: Classes.TriggerUser;
     }
     interface HardwareStats {
-        /** */
+        /** Raw value of the components usage */
         rawValue: number;
-        /** */
+        /** The percentage representing how much of the component is being used */
         percentage: number;
-        /** */
+        /** Unit to be parsed in (either MB or GB) */
         unit: string;
     }
     interface HardwareStatsObject {
-        /** */
+        /** Bot Only Statistics */
         botOnly: HardwareStats;
-        /** */
+        /** System Statistics */
         global: HardwareStats;
     }
     interface RTSBot {
@@ -62,7 +62,6 @@ declare namespace Interfaces {
         triggersDir: string | undefined;
     }
     interface Bot<K extends boolean = boolean> extends djs.Client<K> {
-        token: string;
         prefix: string;
         id: string;
         buttonsDir: string | undefined;
@@ -81,12 +80,12 @@ declare namespace Interfaces {
             ram: HardwareStatsObject;
             cpu: HardwareStatsObject;
         };
-        embed: djs.EmbedBuilder;
+        embed(): djs.EmbedBuilder;
         runtimeStats: RTSBot;
         baseDir: string;
         configs: BotConfigs;
-        gRTS(key: string): Classes.Utilities["RuntimeStatistics"];
-        gev(event: djs.Events): Classes.Utilities["RuntimeStatistics"];
+        gRTS(key: string): typeof Classes.Utilities["RuntimeStatistics"];
+        gev(event: djs.Events): typeof  Classes.Utilities["RuntimeStatistics"];
         regRTS(key: string): number;
         bumpRTS(key: string): number;
         Commands: djs.Collection<string, Classes.Command>;
@@ -419,7 +418,7 @@ declare namespace Classes {
         /** Creates a footer quickly */
         static qFooter<X, Y>(text: string, url: string | undefined): { text: X, url: Y };
     }
-    class Bot implements Interfaces.Bot {
+    class Bot extends djs.Client implements Interfaces.Bot  {
         token: string;
         prefix: string;
         id: string;
@@ -433,6 +432,7 @@ declare namespace Classes {
         selectMenusDir: string | undefined;
         triggersDir: string | undefined;
         constructor(token: string, prefix: string, id: string, options: Interfaces.BotOptions | undefined);
+        interactions: Array<djs.SlashCommandBuilder|djs.ContextMenuCommandBuilder>
         start(): void;
         stats(): {
             ping: number;
@@ -445,8 +445,8 @@ declare namespace Classes {
         runtimeStats: Interfaces.RTSBot;
         baseDir: string;
         configs: Interfaces.BotConfigs;
-        gRTS(key: string): Interfaces.RTS;
-        gev(event: djs.Events): this;
+        gRTS(key: string): Classes.Utilities["RuntimeStatistics"];
+        gev(event: djs.Events): Classes.Utilities["RuntimeStatistics"];
         regRTS(key: string): number;
         bumpRTS(key: string): number;
         setBranding(branding: djs.EmbedData): this;
