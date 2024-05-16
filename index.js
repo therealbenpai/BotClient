@@ -177,7 +177,7 @@ class Bot extends djs.Client {
                         `Triggers: {grey ${Triggers.size}}`,
                         `Pre-defined messages: {cyan ${this.PredefinedMessages.size}}`,
                         `Statuses selection size: {rgb(0,255,255) ${this.Statuses.size}}`,
-                    ).map((m) => `{bold [READY]} Current ${m}`).join('\n')
+                    ).map((m, i) => `{bold [READY]} Current${i == 0 ? '' : ' '}${m}`).join('\n')
                 )))
             setInterval(() => this.user.setPresence({ activities: [this.Statuses.random()] }), 15e3)
         })

@@ -156,14 +156,14 @@ declare namespace Classes {
         /** The Type of Component that this is */
         data: djs.ButtonBuilder | djs.ContextMenuCommandBuilder | djs.SelectMenuBuilder | djs.ModalBuilder;
         /** The Function that is called when the Component is interacted with */
-        execute(interaction: djs.BaseInteraction, client: typeof Bot): void;
+        execute(client: Bot, interaction: djs.BaseInteraction): void;
         constructor(
             name: string,
             info: ComponentInfo,
             data: djs.ButtonBuilder | djs.ContextMenuCommandBuilder | djs.SelectMenuBuilder | djs.ModalBuilder
         )
         /** Sets the execute function for the component */
-        setExecute<handler>(handler: (interaction: djs.BaseInteraction, client: typeof Bot) => void): this & { execute: handler }
+        setExecute<handler>(handler: (client: Bot, interaction: djs.BaseInteraction) => void): this & { execute: handler }
     }
     /** A class that represents the message segment of the trigger data */
     class TriggerMessage extends TriggerBase {
@@ -276,7 +276,7 @@ declare namespace Classes {
             data: djs.ButtonBuilder
         )
         /** @override @description Sets the execute function for the component */
-        setExecute<handler>(handler: (interaction: djs.ButtonInteraction, client: typeof Bot) => void): this & { execute: handler }
+        setExecute<handler>(handler: (client: Bot, interaction: djs.ButtonInteraction) => void): this & { execute: handler }
     }
     /** A class that represents a context menu component */
     class ContextMenuComponent extends BaseComponent {
@@ -286,7 +286,7 @@ declare namespace Classes {
             data: djs.ContextMenuCommandBuilder
         )
         /** @override @description Sets the execute function for the component */
-        setExecute<handler>(handler: (interaction: djs.ContextMenuCommandInteraction, client: typeof Bot) => void): this & { execute: handler }
+        setExecute<handler>(handler: (client: Bot, interaction: djs.ContextMenuCommandInteraction) => void): this & { execute: handler }
     }
     /** A class that represents a modal component */
     class ModalComponent extends BaseComponent {
@@ -296,7 +296,7 @@ declare namespace Classes {
             data: djs.ModalBuilder
         )
         /** @override @description Sets the execute function for the component */
-        setExecute<handler>(handler: (interaction: djs.ModalSubmitInteraction, client: typeof Bot) => void): this & { execute: handler }
+        setExecute<handler>(handler: (client: Bot, interaction: djs.ModalSubmitInteraction) => void): this & { execute: handler }
     }
     /** A class that represents a select menu component */
     class SelectMenuComponent extends BaseComponent {
@@ -306,7 +306,7 @@ declare namespace Classes {
             data: djs.SelectMenuBuilder
         )
         /** @override @description Sets the execute function for the component */
-        setExecute<handler>(handler: (interaction: djs.SelectMenuInteraction, client: typeof Bot) => void): this & { execute: handler }
+        setExecute<handler>(handler: (client: Bot, interaction: djs.SelectMenuInteraction) => void): this & { execute: handler }
     }
     /** A class that represents the information about a component */
     class ComponentInfo {
@@ -473,10 +473,10 @@ declare namespace Classes {
         /** The Configuration information of the Trigger */
         triggerConfig: Interfaces.TriggerConfig;
         /** The function to run when the trigger is activated */
-        execute(client: typeof Bot, message: djs.Message): void;
+        execute(client: Bot, message: djs.Message): void;
         constructor(name: string, message: TriggerMessage, channel: TriggerChannel, role: TriggerRole, user: TriggerUser)
         setGlobalDisable<nv>(newValue: boolean): this & { globalDisable: nv }
-        setExecute<handler>(handler: (client: typeof Bot, message: djs.Message) => void): this & { execute: handler }
+        setExecute<handler>(handler: (client: Bot, message: djs.Message) => void): this & { execute: handler }
         static Message: TriggerMessage;
         static Channel: TriggerChannel;
         static Role: TriggerRole;
@@ -507,11 +507,11 @@ declare namespace Classes {
         /** The Discord API information on the command (used to register the slash command) */
         data: djs.SlashCommandBuilder | undefined | null;
         /** The function to be executed when the ***SLASH*** command is ran */
-        commandExecute(client: typeof Bot, interaction: djs.ChatInputCommandInteraction): void;
+        commandExecute(client: Bot, interaction: djs.ChatInputCommandInteraction): void;
         /** The function to be executed when the ***MESSAGE*** command is ran */
-        messageExecute(client: typeof Bot, message: djs.Message): void;
+        messageExecute(client: Bot, message: djs.Message): void;
         /** The function to be executed when ***AUTOCOMPLETE*** is used */
-        autocomplete(client: typeof Bot, interaction: djs.AutocompleteInteraction): void;
+        autocomplete(client: Bot, interaction: djs.AutocompleteInteraction): void;
         constructor(
             name: string,
             triggers: Array<string>,
@@ -521,11 +521,11 @@ declare namespace Classes {
             data: djs.SlashCommandBuilder | undefined
         )
         /** Sets the execute function for ***SLASH*** commands */
-        setCommand<handler>(handler: (interaction: djs.ChatInputCommandInteraction, client: typeof Bot) => void): this & { commandExecute: handler }
+        setCommand<handler>(handler: (client: Bot, interaction: djs.ChatInputCommandInteraction) => void): this & { commandExecute: handler }
         /** Sets the execute function for ***MESSAGE*** commands */
-        setMessage<handler>(handler: (message: djs.Message, client: typeof Bot) => void): this & { messageExecute: handler }
+        setMessage<handler>(handler: (client: Bot, message: djs.Message) => void): this & { messageExecute: handler }
         /** Sets the execute function for ***AUTOCOMPLETE*** interactions */
-        setAutocomplete<handler>(handler: (interaction: djs.AutocompleteInteraction, client: typeof Bot) => void): this & { autocomplete: handler }
+        setAutocomplete<handler>(handler: (client: Bot, interaction: djs.AutocompleteInteraction) => void): this & { autocomplete: handler }
         static Restrictions: CommandRestrictions;
         static Info: CommandInfo;
     }
@@ -536,20 +536,20 @@ declare namespace Classes {
         /** The Human-Readable name for the message */
         displayName: string;
         /** The function to get the message data */
-        getValue(client: typeof Bot): djs.Message;
+        getValue(client: Bot): djs.Message;
         constructor(name: string, displayName: string)
         /** Sets the function to get the message data */
-        content<handler>(handler: (client: typeof Bot) => djs.Message): this & { getValue: handler }
+        content<handler>(handler: (client: Bot) => djs.Message): this & { getValue: handler }
     }
     /** The Events Object */
     class Event {
         /** The Event this file is associated with */
         event: djs.Events;
         /** The function to be executed */
-        execute(client: typeof Bot, ...args: any): void;
+        execute(client: Bot, ...args: any): void;
         constructor(event: djs.Events);
         /** Sets the execute function for the event */
-        setExecute<handler>(handler: (client: typeof Bot, ...args: any) => void): this & { execute: handler }
+        setExecute<handler>(handler: (client: Bot, ...args: any) => void): this & { execute: handler }
     }
     /** The Components Object */
     class Components implements Interfaces.Components {
@@ -724,6 +724,7 @@ declare namespace Classes {
         static Text: typeof Text;
         static List: typeof List;
         Discord: typeof DiscordClass;
+        // @ts-expect-error
         RuntimeStatistics: typeof RTS;
         Text: typeof Text;
         List: typeof List;
