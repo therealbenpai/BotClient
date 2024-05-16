@@ -412,11 +412,11 @@ declare namespace Classes {
     */
     class EmbedUtils {
         /** Creates a field quickly */
-        static qField<Name, Value, Inline>(name: string, value: string, inline: boolean | undefined): { name: Name, value: Value, inline: Inline };
+        static Field<Name extends string, Value extends string, Inline extends boolean>(name: string, value: string, inline: boolean | undefined): { name: Name, value: Value, inline: Inline };
         /** Creates an author quickly */
-        static qAuthor<name, url, icon>(name: string, url: string | undefined, iconURL: string | undefined): { name: name, url: url, iconURL: icon };
+        static Author<name extends string, url extends string, icon extends string>(name: string, url: string | undefined, iconURL: string | undefined): { name: name, url: url, iconURL: icon };
         /** Creates a footer quickly */
-        static qFooter<X, Y>(text: string, url: string | undefined): { text: X, url: Y };
+        static Footer<X extends string, Y extends string>(text: string, url: string | undefined): { text: X, url: Y };
     }
     class Bot extends djs.Client implements Interfaces.Bot  {
         token: string;
