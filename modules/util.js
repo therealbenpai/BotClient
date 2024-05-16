@@ -233,7 +233,7 @@ class Discord {
             static animatedEmoji = (name, id) => this.quickProcess('a:', name, `:${id} `);
             static timestamp = (timestamp, format = 'f') => this.quickProcess('t:', timestamp, `:${format} `);
         };
-        static Embeds = class {
+        static Embed = class {
             static Field = (name, value, inline = false) => ({ name, value, inline });
             static Author = (name, url = null, iconURL = null) => ({ name, url, iconURL });
             static Footer = (text, url = null) => ({ text, url });
