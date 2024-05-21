@@ -1,52 +1,52 @@
 {
-  "name": "@therealbenpai/djs-client",
-  "version": "2.2.1",
-  "description": "A simple Discord.JS bot client",
-  "main": "src/index.js",
-  "readme": "README.md",
-  "types": "src/@types/defs.d.ts",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint --ext .js,.json --fix ."
-  },
-  "keywords": [
-    "discord.js",
-    "discord",
-    "bot",
-    "javascript",
-    "typescript",
-    "client",
-    "utilities",
-    "configurable"
-  ],
-  "author": "Benjamin",
-  "license": "GPL-3.0",
-  "dependencies": {
-    "chalk-template": "^1.1.0",
-    "discord-api-types": "^0.37.37",
-    "discord.js": "^14.8.0",
-    "dotenv": "^16.0.3",
-    "fuse.js": "^7.0.0"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.1.1",
-    "@stylistic/eslint-plugin": "^1.5.4",
-    "@typescript-eslint/eslint-plugin": "^6.19.0",
-    "@typescript-eslint/parser": "^6.19.0",
-    "eslint": "^8.57.0",
-    "eslint-formatter-gitlab": "^5.1.0",
-    "eslint-import-resolver-typescript": "^3.6.1",
-    "eslint-plugin-import": "^2.29.0",
-    "eslint-plugin-json-schema-validator": "^4.8.3",
-    "eslint-plugin-jsonc": "^2.11.2",
-    "eslint-plugin-yml": "^1.11.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/therealbenpai/BotClient.git"
-  },
-  "bugs": {
-    "url": "https://github.com/therealbenpai/BotClient/issues"
-  },
-  "homepage": "https://github.com/therealbenpai/BotClient#readme"
+    "name": "@therealbenpai/djs-client",
+    "version": "2.2.1",
+    "description": "A simple Discord.JS bot client",
+    "main": "src/index.js",
+    "readme": "README.md",
+    "types": "src/@types/defs.d.ts",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "lint": "eslint --ext .js,.json --fix ."
+    },
+    "keywords": [
+        "discord.js",
+        "discord",
+        "bot",
+        "javascript",
+        "typescript",
+        "client",
+        "utilities",
+        "configurable"
+    ],
+    "author": "Benjamin",
+    "license": "GPL-3.0",
+    "dependencies": {
+        "chalk-template": "^1.1.0",
+        "discord-api-types": "^0.37.37",
+        "discord.js": "^14.8.0",
+        "dotenv": "^16.0.3",
+        "fuse.js": "^7.0.0"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.1.1",
+        "@stylistic/eslint-plugin": "^1.5.4",
+        "@typescript-eslint/eslint-plugin": "^6.19.0",
+        "@typescript-eslint/parser": "^6.19.0",
+        "eslint": "^8.57.0",
+        "eslint-formatter-gitlab": "^5.1.0",
+        "eslint-import-resolver-typescript": "^3.6.1",
+        "eslint-plugin-import": "^2.29.0",
+        "eslint-plugin-json-schema-validator": "^4.8.3",
+        "eslint-plugin-jsonc": "^2.11.2",
+        "eslint-plugin-yml": "^1.11.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/therealbenpai/BotClient.git"
+    },
+    "bugs": {
+        "url": "https://github.com/therealbenpai/BotClient/issues"
+    },
+    "homepage": "https://github.com/therealbenpai/BotClient#readme"
 }

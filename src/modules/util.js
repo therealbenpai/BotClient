@@ -6,11 +6,12 @@ class General {
         static divide = (a, b) => a / b;
         static exponent = (a, b) => a ** b;
         static modulo = (a, b) => a % b;
-    }
+    };
 }
 class TriggerBase {
     activated;
     prefix;
+
     constructor(activated, prefix) {
         this.activated = activated;
         this.prefix = prefix;
@@ -21,6 +22,7 @@ class BaseComponent {
     info;
     data;
     execute;
+
     constructor(name, info, data) {
         this.name = name;
         this.info = info;
@@ -35,6 +37,7 @@ class SubContainer {
         contains;
         suffixes;
         regex;
+
         constructor(activated, prefix, config) {
             super(activated, prefix);
             this.prefixes = config?.prefixes ?? [];
@@ -46,6 +49,7 @@ class SubContainer {
     static TriggerChannel = class extends TriggerBase {
         id;
         types;
+
         constructor(activated, prefix, config) {
             super(activated, prefix);
             this.id = config?.id ?? [];
@@ -54,6 +58,7 @@ class SubContainer {
     };
     static TriggerRole = class extends TriggerBase {
         id;
+
         constructor(activated, prefix, config) {
             super(activated, prefix);
             this.id = config.id ?? [];
@@ -61,6 +66,7 @@ class SubContainer {
     };
     static TriggerUser = class extends TriggerBase {
         id;
+
         constructor(activated, prefix, config) {
             super(activated, prefix);
             this.id = config?.id ?? [];
@@ -72,6 +78,7 @@ class SubContainer {
         roles;
         users;
         dms;
+
         constructor(data) {
             this.perm = data?.perm || undefined;
             this.channels = data?.channels || [];
@@ -86,6 +93,7 @@ class SubContainer {
         usage;
         examples;
         disabled;
+
         constructor(data) {
             this.type = data.type;
             this.description = data.description;
@@ -122,6 +130,7 @@ class SubContainer {
         name;
         description;
         type;
+
         constructor(name, description, type) {
             this.name = name;
             this.description = description;
@@ -146,8 +155,8 @@ class Timer {
         m: 6e4,
         s: 1e3,
     };
-    static stm = (v,k) => v.slice(0, -1) * this.stmDict[k];
-    static et = (v, k, mod = 2**32-1) => (v / (this.stmDict[mod] / 1e3)) % this.stmDict[k];
+    static stm = (v, k) => v.slice(0, -1) * this.stmDict[k];
+    static et = (v, k, mod = 2 ** 32 - 1) => v / (this.stmDict[mod] / 1e3) % this.stmDict[k];
     static ts = {
         locale: 'en-US',
         options: {
@@ -164,7 +173,9 @@ class Timer {
     };
     static timestamp = (value) => new Intl.DateTimeFormat(this.ts.locale, this.ts.options).format(value);
     static elapsedTime = (t) => {
-        if (isNaN(t)) throw new TypeError('Timestamp must be a number');
+        if (isNaN(t)) {
+            throw new TypeError('Timestamp must be a number');
+        }
         t = Math.floor(t);
         return List.and(
             Object.entries({
@@ -173,7 +184,7 @@ class Timer {
                 day: this.et(t, 'd', 30),
                 hour: this.et(t, 'h', 24),
                 minute: this.et(t, 'm', 60),
-                second: this.et(t, 's')
+                second: this.et(t, 's'),
             })
                 .map(([k, v]) => [k, Math.floor(v)])
                 .filter(([_, v]) => Boolean(v))
@@ -245,6 +256,7 @@ class Discord {
             globalDisable;
             triggerConfig;
             execute;
+
             constructor(name, message, channel, role, user) {
                 this.name = name;
                 this.globalDisable = false;
@@ -256,6 +268,7 @@ class Discord {
                 };
                 this.execute = (_client, _message) => { };
             }
+
             setGlobalDisable(newValue) {
                 this.globalDisable = newValue;
                 return this;
@@ -281,6 +294,7 @@ class Discord {
             commandExecute;
             messageExecute;
             autocomplete;
+
             constructor(name, triggers, config, restrictions, types, data) {
                 this.name = name;
                 this.triggers = triggers;
@@ -315,6 +329,7 @@ class Discord {
             name;
             displayName;
             getValue;
+
             constructor(n, dn) {
                 this.name = n;
                 this.displayName = dn;
@@ -335,6 +350,7 @@ class Discord {
         static Event = class {
             event;
             execute;
+
             constructor(event) {
                 this.event = event;
                 this.execute = async (_client, ..._args) => { };
@@ -354,7 +370,9 @@ class RuntimeStatistics {
     reg = () => ++this.registered;
     exec = () => ++this.executed;
 }
-const thisSetter = (t) => { throw new ReferenceError(`${t.name} is Read - Only`) };
+const thisSetter = (t) => {
+    throw new ReferenceError(`${t.name} is Read - Only`);
+};
 class Utils extends General {
     static Time = Timer;
     static Discord = Discord;
@@ -362,24 +380,44 @@ class Utils extends General {
     static List = List;
     static RuntimeStatistics = RuntimeStatistics;
 
-    get Time() { return Timer }
+    get Time() {
+        return Timer;
+    }
 
-    set Time(_) { thisSetter(Timer) }
+    set Time(_) {
+        thisSetter(Timer);
+    }
 
-    get Discord() { return Discord }
+    get Discord() {
+        return Discord;
+    }
 
-    set Discord(_) { thisSetter(Discord) }
+    set Discord(_) {
+        thisSetter(Discord);
+    }
 
-    get Text() { return Text }
+    get Text() {
+        return Text;
+    }
 
-    set Text(_) { thisSetter(Text) }
+    set Text(_) {
+        thisSetter(Text);
+    }
 
-    get List() { return List }
+    get List() {
+        return List;
+    }
 
-    set List(_) { thisSetter(List) }
+    set List(_) {
+        thisSetter(List);
+    }
 
-    get RuntimeStatistics() { return RuntimeStatistics }
+    get RuntimeStatistics() {
+        return RuntimeStatistics;
+    }
 
-    set RuntimeStatistics(_) { thisSetter(RuntimeStatistics) }
+    set RuntimeStatistics(_) {
+        thisSetter(RuntimeStatistics);
+    }
 }
 module.exports = Utils;

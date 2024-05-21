@@ -77,7 +77,7 @@ class Bot extends djs.Client {
         this.branding = {
             footer: { text: '' },
             color: 0x2F3136,
-        }
+        };
         this.interactions = [];
         this
             .on('push.events', (event) => {
@@ -87,12 +87,14 @@ class Bot extends djs.Client {
                 console.log(`[EVENT] Registered ${event.event}`);
                 this.on(event.event, (...args) => {
                     this.bumpRTS(`events.sEE.${event.event}`);
-                    event.execute(this, ...args)
+                    event.execute(this, ...args);
                 });
             })
             .on('push.commands', (command) => {
                 Commands.set(command.name, command);
-                if (command.type.text) this.regRTS('commands.text');
+                if (command.type.text) {
+                    this.regRTS('commands.text');
+                }
                 if (command.type.slash) {
                     this.regRTS('commands.slash');
                     this.interactions.push(command.data.toJSON());
@@ -103,8 +105,7 @@ class Bot extends djs.Client {
                 Object.keys(trigger.triggerConfig)
                     .forEach((key) => trigger.triggerConfig[key].activated
                         ? this.regRTS(`triggers.${key}`)
-                        : null
-                    );
+                        : null);
             })
             .on('push.buttons', (button) => {
                 Buttons.set(button.name, button);
@@ -129,22 +130,58 @@ class Bot extends djs.Client {
             })
             .on('push.predefinedMessages', (message) => {
                 const gv = message.getValue;
-                PredefinedMessages.set(message.name, Object.assign(message, { getValue: (c) => { this.bumpRTS('predefinedMessages'); return gv(c); } }));
+                PredefinedMessages.set(message.name, Object.assign(message, { getValue: (c) => {
+                    this.bumpRTS('predefinedMessages'); return gv(c);
+                } }));
                 this.regRTS('predefinedMessages');
             });
         const rds = fs.readdirSync;
         Array.of(
-            this.eventsDir ? [this.eventsDir, (event) => { this.emit('push.events', event) }] : null,
-            this.commandsDir ? [this.commandsDir, (command) => { this.emit('push.commands', command) }] : null,
-            this.triggersDir ? [this.triggersDir, (trigger) => { this.emit('push.triggers', trigger) }] : null,
-            this.buttonsDir ? [this.buttonsDir, (button) => { this.emit('push.buttons', button) }] : null,
-            this.contextMenusDir ? [this.contextMenusDir, (contextMenu) => { this.emit('push.contextMenus', contextMenu) }] : null,
-            this.selectMenusDir ? [this.selectMenusDir, (selectMenu) => { this.emit('push.selectMenus', selectMenu) }] : null,
-            this.modalComponentsDir ? [this.modalComponentsDir, (modal) => { this.emit('push.modals', modal) }] : null,
-            this.predefinedMessagesDir ? [this.predefinedMessagesDir, (message) => { this.emit('push.predefinedMessages', message) }] : null,
+            this.eventsDir
+                ? [this.eventsDir, (event) => {
+                    this.emit('push.events', event);
+                }]
+                : null,
+            this.commandsDir
+                ? [this.commandsDir, (command) => {
+                    this.emit('push.commands', command);
+                }]
+                : null,
+            this.triggersDir
+                ? [this.triggersDir, (trigger) => {
+                    this.emit('push.triggers', trigger);
+                }]
+                : null,
+            this.buttonsDir
+                ? [this.buttonsDir, (button) => {
+                    this.emit('push.buttons', button);
+                }]
+                : null,
+            this.contextMenusDir
+                ? [this.contextMenusDir, (contextMenu) => {
+                    this.emit('push.contextMenus', contextMenu);
+                }]
+                : null,
+            this.selectMenusDir
+                ? [this.selectMenusDir, (selectMenu) => {
+                    this.emit('push.selectMenus', selectMenu);
+                }]
+                : null,
+            this.modalComponentsDir
+                ? [this.modalComponentsDir, (modal) => {
+                    this.emit('push.modals', modal);
+                }]
+                : null,
+            this.predefinedMessagesDir
+                ? [this.predefinedMessagesDir, (message) => {
+                    this.emit('push.predefinedMessages', message);
+                }]
+                : null,
         )
             .filter((s) => s !== null)
-            .forEach((s) => rds(s[0]).filter((f) => f !== 'example.js').map((f) => require(`${s[0]}/${f}`)).forEach(s[1]));
+            .forEach((s) => rds(s[0]).filter((f) => f !== 'example.js')
+                .map((f) => require(`${s[0]}/${f}`))
+                .forEach(s[1]));
         this.emit('push.events', {
             event: 'ready',
             execute: (client) => {
@@ -162,18 +199,19 @@ class Bot extends djs.Client {
                             `Triggers: {grey ${Triggers.size}}`,
                             `Pre-defined messages: {cyan ${this.PredefinedMessages.size}}`,
                             `Statuses selection size: {rgb(0,255,255) ${this.Statuses.size}}`,
-                        ).map((m, i) => `{bold [READY]} Current${i == 0 ? '' : ' '}${m}`).join('\n')
-                    )))
-                setInterval(() => this.user.setPresence({ activities: [this.Statuses.random()] }), 15e3)
-            }
-        })
+                        ).map((m, i) => `{bold [READY]} Current${i == 0 ? '' : ' '}${m}`)
+                            .join('\n'),
+                    )));
+                setInterval(() => this.user.setPresence({ activities: [this.Statuses.random()] }), 15e3);
+            },
+        });
     }
-    embed = () => new djs.EmbedBuilder(this.branding).setTimestamp()
+    embed = () => new djs.EmbedBuilder(this.branding).setTimestamp();
     stats = () => {
         const botRam = process.memoryUsage().heapTotal;
-        const rawBRam = (botRam / 1024 ** 2);
+        const rawBRam = botRam / 1024 ** 2;
         const globalRam = os.totalmem() - os.freemem();
-        const rawGRam = (globalRam / 1024 ** 2);
+        const rawGRam = globalRam / 1024 ** 2;
         return {
             ping: this.ws.ping,
             uptime: Utils.List.and(Utils.Time.elapsedTime(Math.floor(process.uptime())).split(', ')),
@@ -191,12 +229,13 @@ class Bot extends djs.Client {
                 },
             },
         };
-    }
+    };
     gRTS = (key) => eval(`this.runtimeStats.${key}`);
     gev = (name) => Object.assign(this.runtimeStats.events.sEE, { [`${name}`]: new Utils.RuntimeStatistics() });
     regRTS = (key) => this.gRTS(key).reg();
     bumpRTS = (key) => this.gRTS(key).exec();
     setBranding = (branding) => Object.assign(this.branding, branding);
+
     start() {
         new REST({ version: '10' })
             .setToken(this.token)
@@ -209,4 +248,4 @@ class Bot extends djs.Client {
 Object.assign(module.exports, {
     Client: Bot,
     Utils,
-})
+});
