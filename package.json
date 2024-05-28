@@ -2,11 +2,16 @@
   "name": "@therealbenpai/djs-client",
   "version": "2.2.1",
   "description": "A simple Discord.JS bot client",
-  "main": "index.js",
+  "main": "dist/index.js",
   "readme": "README.md",
-  "types": "@types/defs.d.ts",
+  "types": "@types/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "docs": "npx typedoc --options typedoc.config.cjs",
+    "compile": "npx tsc",
+    "jit": "npx tsc --watch",
+    "update": "eslint --fix && typedoc --options typedoc.config.cjs",
+    "lint": "eslint ."
   },
   "keywords": [
     "discord.js",
@@ -25,9 +30,9 @@
     "discord-api-types": "^0.37.37",
     "discord.js": "^14.8.0",
     "dotenv": "^16.0.3",
-    "fuse.js": "^7.0.0"
+    "fuse.js": "^7.0.0",
+    "typescript": "^5.4.5"
   },
-  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/therealbenpai/BotClient.git"
