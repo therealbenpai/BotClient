@@ -7,7 +7,6 @@ import jsDoc from "eslint-plugin-jsdoc";
 
 const configs = {
     files: [
-        'src/**/*.js',
         'src/**/*.ts',
     ],
     languageOptions: {
@@ -45,7 +44,6 @@ const configs = {
         'key-spacing': 'error',
         'keyword-spacing': 'error',
         'linebreak-style': 'error',
-        'max-len': ['error', { 'code': 150 }],
         'no-console': 'error',
         'prefer-const': 'error',
         'ts/adjacent-overload-signatures': 'error',
@@ -73,13 +71,11 @@ const configs = {
         'ts/no-this-alias': 'error',
         'ts/no-unnecessary-type-assertion': 'error',
         'ts/no-unnecessary-type-constraint': 'error',
-        'ts/no-unsafe-argument': 'error',
         'ts/no-unsafe-assignment': 'error',
         'ts/no-unsafe-call': 'error',
         'ts/no-unsafe-declaration-merging': 'error',
         'ts/no-unsafe-enum-comparison': 'error',
         'ts/no-unsafe-member-access': 'error',
-        'ts/no-unsafe-return': 'error',
         'ts/no-var-requires': 'error',
         'ts/non-nullable-type-assertion-style': 'error',
         'ts/prefer-as-const': 'error',

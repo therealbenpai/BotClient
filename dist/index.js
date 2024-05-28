@@ -29,6 +29,7 @@ const v10_1 = require("discord-api-types/v10");
 const rest_1 = require("@discordjs/rest");
 const fs = __importStar(require("fs"));
 const os = __importStar(require("os"));
+const chalk_template_1 = require("chalk-template");
 class General {
     static Reduce = class {
         /** Adds two numbers together */
@@ -68,7 +69,6 @@ class BaseComponent {
         this.name = name;
         this.info = info;
         this.data = data;
-        this.execute = async (client, interaction) => { };
     }
     setExecute(handler) {
         Object.assign(this, { execute: handler });
@@ -150,10 +150,10 @@ class CommandRestrictions {
     dms;
     constructor(data) {
         this.perm = data.perm;
-        this.channels = data?.channels || [];
-        this.roles = data?.roles || [];
-        this.users = data?.users || [];
-        this.dms = data?.dms || false;
+        this.channels = data?.channels ?? [];
+        this.roles = data?.roles ?? [];
+        this.users = data?.users ?? [];
+        this.dms = data?.dms ?? false;
     }
 }
 ;
@@ -262,7 +262,7 @@ class Timer {
         .set('h', ['hour', 36e5])
         .set('m', ['minute', 6e4])
         .set('s', ['second', 1e3]);
-    static stm = (v, k) => Number(v.slice(0, -1)) * this.STMDict2.get(k)[1];
+    static stm = (v, k) => Number(v.slice(0, -1)) * this.STMDict2.get(k).at(1);
     static ts = {
         locale: 'en-US',
         options: {
@@ -325,217 +325,222 @@ class TextSym {
     /** Join a long set of text into a single string value */
     static longText = (joiner, ...value) => value.join(joiner);
 }
-class Discord {
-    static Utils = class {
-        /**
-         * A class that contains methods for creating markdown text
-         */
-        static Markdown = class {
-            /** Quickly process a string with a prefix and suffix */
-            static quickProcess = (a) => (v) => `${a}${v}${a}`;
-            /** Process a string into a inline code segment */
-            static inlineCode = this.quickProcess('`');
-            /** Make text appear as bolded */
-            static bold = this.quickProcess('**');
-            /** Make text appear as italicized */
-            static italic = this.quickProcess('*');
-            /** Make text appear as underlined */
-            static underline = this.quickProcess('__');
-            /** Make text appear with a strikethrough */
-            static strikethrough = this.quickProcess('~~');
-            /** Make text appear as a spoiler */
-            static spoiler = this.quickProcess('||');
-            /** Make text appear as a quote */
-            static quote = (value) => `> ${value}`;
-            /** Make text appear as a code block */
-            static codeBlock = (stringValue, language) => `\`\`\`${language || ''}\n${stringValue}\n\`\`\``;
-            /** Make text appear as a block quote */
-            static blockQuote = (value) => `>>> ${value}`;
-            /** Make text appear as a formatted url */
-            static link = (text, url) => `[${text}](${url})`;
-        };
-        /**
-         * A class that contains methods for creating mentions
-         */
-        static Mentions = class {
-            /** Quickly process a string with a prefix and suffix */
-            static quickProcess = (prefix, value, suffix = '') => `<${prefix}${value}${suffix}>`;
-            /** Process a string into a role mention */
-            static role = (id) => this.quickProcess('@&', id);
-            /** Process a string into a user mention */
-            static user = (id) => this.quickProcess('@', id);
-            /** Process a string into a channel mention */
-            static channel = (id) => this.quickProcess('#', id);
-            /** Process a string into an emoji */
-            static emoji = (name, id) => this.quickProcess(':', name, `:${id} `);
-            /** Process a string into an animated emoji */
-            static animatedEmoji = (name, id) => this.quickProcess('a:', name, `:${id} `);
-            /** Process a string into a timestamp */
-            static timestamp = (timestamp, format = 'f') => this.quickProcess('t:', timestamp, `:${format}`);
-        };
-        /**
-         * A class that contains methods for creating embeds
-         */
-        static Embed = class {
-            /** Quickly create a field for an embed */
-            static Field = (name, value, inline = false) => ({ name, value, inline });
-            /** Quickly create an author for an embed */
-            static Author = (name, url = null, iconURL = null) => ({ name, url, iconURL });
-            /** Quickly create a footer for an embed */
-            static Footer = (text, url = null) => ({ text, url });
-        };
-    };
+class Markdown {
+    /** Quickly process a string with a prefix and suffix */
+    static quickProcess = (a) => (v) => `${a}${v}${a}`;
+    /** Process a string into a inline code segment */
+    static inlineCode = this.quickProcess('`');
+    /** Make text appear as bolded */
+    static bold = this.quickProcess('**');
+    /** Make text appear as italicized */
+    static italic = this.quickProcess('*');
+    /** Make text appear as underlined */
+    static underline = this.quickProcess('__');
+    /** Make text appear with a strikethrough */
+    static strikethrough = this.quickProcess('~~');
+    /** Make text appear as a spoiler */
+    static spoiler = this.quickProcess('||');
+    /** Make text appear as a quote */
+    static quote = (value) => `> ${value}`;
+    /** Make text appear as a code block */
+    static codeBlock = (stringValue, language) => `\`\`\`${language || ''}\n${stringValue}\n\`\`\``;
+    /** Make text appear as a block quote */
+    static blockQuote = (value) => `>>> ${value}`;
+    /** Make text appear as a formatted url */
+    static link = (text, url) => `[${text}](${url})`;
+}
+;
+class Mentions {
+    /** Quickly process a string with a prefix and suffix */
+    static quickProcess = (prefix, value, suffix = '') => `<${prefix}${value}${suffix}>`;
+    /** Process a string into a role mention */
+    static role = (id) => this.quickProcess('@&', id);
+    /** Process a string into a user mention */
+    static user = (id) => this.quickProcess('@', id);
+    /** Process a string into a channel mention */
+    static channel = (id) => this.quickProcess('#', id);
+    /** Process a string into an emoji */
+    static emoji = (name, id) => this.quickProcess(':', name, `:${id} `);
+    /** Process a string into an animated emoji */
+    static animatedEmoji = (name, id) => this.quickProcess('a:', name, `:${id} `);
+    /** Process a string into a timestamp */
+    static timestamp = (timestamp, format = 'f') => this.quickProcess('t:', timestamp, `:${format}`);
+}
+/**
+ * A class that contains methods for creating embeds
+ */
+class Embed {
+    /** Quickly create a field for an embed */
+    static Field = (name, value, inline = false) => ({ name, value, inline });
+    /** Quickly create an author for an embed */
+    static Author = (name, url = null, iconURL = null) => ({ name, url, iconURL });
+    /** Quickly create a footer for an embed */
+    static Footer = (text, url = null) => ({ text, url });
+}
+class DiscordUtils {
     /**
-     * A class that contains methods for interacting with the Discord API
+     * A class that contains methods for creating markdown text
      */
-    static Initializers = class {
-        /**
-         * A class that represents a message trigger
-         */
-        static Trigger = class {
-            /** The name of the trigger */
-            name;
-            /** Whether or not the trigger is disabled */
-            globalDisable;
-            /** The configuration for the trigger */
-            triggerConfig;
-            /** The function that is called when the trigger is activated */
-            async execute(client, message) { }
-            constructor(name, message, channel, role, user) {
-                this.name = name;
-                this.globalDisable = false;
-                this.triggerConfig = {
-                    message,
-                    channel,
-                    role,
-                    user,
-                };
-                this.execute = async (client, message) => { };
-            }
-            /** Set whether or not the trigger is disabled */
-            setGlobalDisable = (newValue) => Object.assign(this, { globalDisable: newValue });
-            /** Set the function that is called when the trigger is activated */
-            setExecute = (handler) => Object.assign(this, { execute: handler });
-            /** The class that represents the execution conditions dealing with messages for a trigger */
-            static Message = TriggerMessage;
-            /** The class that represents the execution conditions dealing with channels for a trigger */
-            static Channel = TriggerChannel;
-            /** The class that represents the execution conditions dealing with roles for a trigger */
-            static Role = TriggerRole;
-            /** The class that represents the execution conditions dealing with users for a trigger */
-            static User = TriggerUser;
+    static Markdown = Markdown;
+    /**
+     * A class that contains methods for creating mentions
+     */
+    static Mentions = Mentions;
+    /**
+     * A class that contains methods for creating embeds
+     */
+    static Embed = Embed;
+}
+class Event {
+    /** The name of the event */
+    event;
+    /** The function that is called when the event is emitted */
+    async execute(client, ...args) { }
+    constructor(event) {
+        this.event = event;
+    }
+    setExecute = (handler) => Object.assign(this, { execute: handler });
+}
+;
+class Trigger {
+    /** The name of the trigger */
+    name;
+    /** Whether or not the trigger is disabled */
+    globalDisable;
+    /** The configuration for the trigger */
+    triggerConfig;
+    /** The function that is called when the trigger is activated */
+    async execute(client, message) { }
+    constructor(name, message, channel, role, user) {
+        this.name = name;
+        this.globalDisable = false;
+        this.triggerConfig = {
+            message,
+            channel,
+            role,
+            user,
         };
-        /**
-         * A class that represents a command
-         */
-        static Command = class {
-            /** The name of the command */
-            name;
-            /** The triggers that can activate the command */
-            triggers;
-            /** The information about the command */
-            info;
-            /** The permissions required to execute the command */
-            requiredPerm;
-            /** The channels that the command can be executed in */
-            channelLimits;
-            /** The roles that can execute the command */
-            allowedRoles;
-            /** The users that can execute the command */
-            allowedUsers;
-            /** Whether or not the command can be executed in DMs */
-            blockDM;
-            /** Whether or not the command is disabled */
-            disabled;
-            /** The type of command */
-            type;
-            /** The data for the command */
-            data;
-            /** The function that is called when the command is executed */
-            async commandExecute(client, interaction) { }
-            ;
-            /** The function that is called when the command is executed */
-            async messageExecute(client, message) { }
-            ;
-            /** The function that is called when the command's autocomplete action is called */
-            async autocomplete(client, interaction) { }
-            ;
-            constructor(name, triggers, config, restrictions, types, data) {
-                this.name = name;
-                this.triggers = triggers;
-                this.info = {
-                    type: config.type,
-                    description: config.description,
-                    usage: config.usage,
-                    examples: config.examples,
-                    aliases: triggers,
-                    disabled: config.disabled,
-                };
-                this.requiredPerm = restrictions.perm;
-                this.channelLimits = restrictions.channels;
-                this.allowedRoles = restrictions.roles;
-                this.allowedUsers = restrictions.users;
-                this.blockDM = !restrictions.dms;
-                this.disabled = config.disabled;
-                this.type = types;
-                this.data = data;
-                this.commandExecute = async (client, interaction) => { };
-                this.messageExecute = async (client, message) => { };
-                this.autocomplete = async (client, interaction) => { };
-            }
-            /** Set the function that is called when the slash command is executed */
-            setCommand = (handler) => Object.assign(this, { commandExecute: handler });
-            /** Set the function that is called when the text command is executed */
-            setMessage = (handler) => Object.assign(this, { messageExecute: handler });
-            /** Set the function that is called when the autocomplete action is called */
-            setAutocomplete = (handler) => Object.assign(this, { autocomplete: handler });
-            /** The class that represents the restrictions that can be placed on a command */
-            static Restrictions = CommandRestrictions;
-            /** The class that contains information about a command */
-            static Info = CommandInfo;
+    }
+    /** Set whether or not the trigger is disabled */
+    setGlobalDisable = (newValue) => Object.assign(this, { globalDisable: newValue });
+    /** Set the function that is called when the trigger is activated */
+    setExecute = (handler) => Object.assign(this, { execute: handler });
+    /** The class that represents the execution conditions dealing with messages for a trigger */
+    static Message = TriggerMessage;
+    /** The class that represents the execution conditions dealing with channels for a trigger */
+    static Channel = TriggerChannel;
+    /** The class that represents the execution conditions dealing with roles for a trigger */
+    static Role = TriggerRole;
+    /** The class that represents the execution conditions dealing with users for a trigger */
+    static User = TriggerUser;
+}
+class Command {
+    /** The name of the command */
+    name;
+    /** The triggers that can activate the command */
+    triggers;
+    /** The information about the command */
+    info;
+    /** The permissions required to execute the command */
+    requiredPerm;
+    /** The channels that the command can be executed in */
+    channelLimits;
+    /** The roles that can execute the command */
+    allowedRoles;
+    /** The users that can execute the command */
+    allowedUsers;
+    /** Whether or not the command can be executed in DMs */
+    blockDM;
+    /** Whether or not the command is disabled */
+    disabled;
+    /** The type of command */
+    type;
+    /** The data for the command */
+    data;
+    /** The function that is called when the command is executed */
+    async commandExecute(client, interaction) { }
+    ;
+    /** The function that is called when the command is executed */
+    async messageExecute(client, message) { }
+    ;
+    /** The function that is called when the command's autocomplete action is called */
+    async autocomplete(client, interaction) { }
+    ;
+    constructor(name, triggers, config, restrictions, types, data) {
+        this.name = name;
+        this.triggers = triggers;
+        this.info = {
+            type: config.type,
+            description: config.description,
+            usage: config.usage,
+            examples: config.examples,
+            aliases: triggers,
+            disabled: config.disabled,
         };
-        /**
-         * A class that represents a message
-         */
-        static Message = class {
-            /** The name of the message */
-            name;
-            /** The display name of the message */
-            displayName;
-            /** The function that is called when the message is called */
-            async getValue(client) { return {}; }
-            constructor(name, displayName) {
-                this.name = name;
-                this.displayName = displayName;
-                this.getValue = async (client) => { return {}; };
-            }
-            content = (handler) => Object.assign(this, { getValue: handler });
-        };
-        /** A class that represents a button */
-        static Button = ButtonComponent;
-        /** A class that represents a context menu */
-        static ContextMenu = ContextMenuComponent;
-        /** A class that represents a modal */
-        static Modal = ModalComponent;
-        /** A class that represents a select menu */
-        static SelectMenu = SelectMenuComponent;
-        /** A class that represents the information for a component */
-        static ComponentInfo = ComponentInfo;
-        /**
-         * A class that represents an event
-         */
-        static Event = class {
-            /** The name of the event */
-            event;
-            /** The function that is called when the event is emitted */
-            async execute(client, ...args) { }
-            constructor(event) {
-                this.event = event;
-                this.execute = async (client, ...args) => { };
-            }
-            setExecute = (handler) => Object.assign(this, { execute: handler });
-        };
-    };
+        this.requiredPerm = restrictions.perm;
+        this.channelLimits = restrictions.channels;
+        this.allowedRoles = restrictions.roles;
+        this.allowedUsers = restrictions.users;
+        this.blockDM = !restrictions.dms;
+        this.disabled = config.disabled;
+        this.type = types;
+        this.data = data;
+    }
+    /** Set the function that is called when the slash command is executed */
+    setCommand = (handler) => Object.assign(this, { commandExecute: handler });
+    /** Set the function that is called when the text command is executed */
+    setMessage = (handler) => Object.assign(this, { messageExecute: handler });
+    /** Set the function that is called when the autocomplete action is called */
+    setAutocomplete = (handler) => Object.assign(this, { autocomplete: handler });
+    /** The class that represents the restrictions that can be placed on a command */
+    static Restrictions = CommandRestrictions;
+    /** The class that contains information about a command */
+    static Info = CommandInfo;
+}
+;
+class Message {
+    /** The name of the message */
+    name;
+    /** The display name of the message */
+    displayName;
+    /** The function that is called when the message is called */
+    // @ts-expect-error
+    async getValue(client) { }
+    constructor(name, displayName) {
+        this.name = name;
+        this.displayName = displayName;
+    }
+    content = (handler) => Object.assign(this, { getValue: handler });
+}
+;
+class DiscordInitializers {
+    /** A class that represents a message trigger */
+    static Trigger = Trigger;
+    /** A class that represents a command */
+    static Command = Command;
+    /** A class that represents a message */
+    static Message = Message;
+    /** A class that represents a button */
+    static Button = ButtonComponent;
+    /** A class that represents a context menu */
+    static ContextMenu = ContextMenuComponent;
+    /** A class that represents a modal */
+    static Modal = ModalComponent;
+    /** A class that represents a select menu */
+    static SelectMenu = SelectMenuComponent;
+    /** A class that represents the information for a component */
+    static ComponentInfo = ComponentInfo;
+    /** A class that represents an event */
+    static Event = Event;
+}
+;
+/**
+ * A class that contains methods for interacting with the Discord API
+ */
+class Discord {
+    static Utils = DiscordUtils;
+    /** A class that contains methods for interacting with the Discord API */
+    static Initializers = DiscordInitializers;
 }
 class RuntimeStatistics {
     /** The number of times `X` has been registered */
@@ -597,6 +602,7 @@ class Bot extends djs.Client {
     Statuses;
     Utils;
     branding;
+    RESTClient;
     constructor(id, token, prefix, options) {
         super({
             intents: Object.values(djs.GatewayIntentBits),
@@ -665,23 +671,19 @@ class Bot extends djs.Client {
             footer: { text: '' },
             color: 0x2F3136,
         };
-        this.interactions = new Array();
+        this.interactions = [];
+        this.RESTClient = new rest_1.REST({ version: '10' }).setToken(this.botToken);
         this
             .on('push.events', (event) => {
-            if (!(event instanceof UtilsClass.Discord.Initializers.Event))
-                return;
             this.regRTS('events');
             this.gev(event.event);
             this.Events.set(event.event, event);
-            console.log(`[EVENT] Registered ${event.event}`);
-            this.on(event.event, (...args) => {
+            this.on(event.event, async (...args) => {
                 this.bumpRTS(`events.sEE.${event.event}`);
-                event.execute(this, ...args);
+                await event.execute(this, ...args);
             });
         })
             .on('push.commands', (command) => {
-            if (!(command instanceof UtilsClass.Discord.Initializers.Command))
-                return;
             this.Commands.set(command.name, command);
             if (command.type.text)
                 this.regRTS('commands.text');
@@ -692,60 +694,50 @@ class Bot extends djs.Client {
             }
         })
             .on('push.triggers', (trigger) => {
-            if (!(trigger instanceof UtilsClass.Discord.Initializers.Trigger))
-                return;
             this.Triggers.set(trigger.name, trigger);
             Object.entries(trigger.triggerConfig)
-                .forEach((value) => value[1].activated
+                .forEach(value => value[1].activated
                 ? this.regRTS(`triggers.${value[0]}`)
                 : null);
         })
             .on('push.buttons', (button) => {
-            if (!(button instanceof UtilsClass.Discord.Initializers.Button))
-                return;
             this.Buttons.set(button.name, button);
             this.regRTS('components.buttons');
         })
             .on('push.contextMenus', (contextMenu) => {
-            if (!(contextMenu instanceof UtilsClass.Discord.Initializers.ContextMenu))
-                return;
             this.ContextMenus.set(contextMenu.name, contextMenu);
             this.regRTS('components.contextMenus');
             // @ts-expect-error
             this.interactions.push(contextMenu.data.toJSON());
         })
             .on('push.selectMenus', (selectMenu) => {
-            if (!(selectMenu instanceof UtilsClass.Discord.Initializers.SelectMenu))
-                return;
             this.SelectMenus.set(selectMenu.name, selectMenu);
             this.regRTS('components.selectMenus');
         })
             .on('push.modals', (modal) => {
-            if (!(modal instanceof UtilsClass.Discord.Initializers.Modal))
-                return;
             this.Modals.set(modal.name, modal);
             this.regRTS('components.modals');
         })
             .on('push.predefinedMessages', (message) => {
-            if (!(message instanceof UtilsClass.Discord.Initializers.Message))
+            if (!(message instanceof Message))
                 return;
-            const gv = message.getValue;
-            this.PredefinedMessages.set(message.name, Object.assign(message, { getValue: (c) => { this.bumpRTS('predefinedMessages'); return gv(c); } }));
+            this.PredefinedMessages.set(message.name, Object.assign(message, { getValue: (c) => { this.bumpRTS('predefinedMessages'); return message.getValue(c); } }));
             this.regRTS('predefinedMessages');
         });
         const rds = fs.readdirSync;
-        Array.of(this.eventsDir ? [this.eventsDir, (event) => { this.emit('push.events', event); }] : null, this.commandsDir ? [this.commandsDir, (command) => { this.emit('push.commands', command); }] : null, this.triggersDir ? [this.triggersDir, (trigger) => { this.emit('push.triggers', trigger); }] : null, this.buttonsDir ? [this.buttonsDir, (button) => { this.emit('push.buttons', button); }] : null, this.contextMenusDir ? [this.contextMenusDir, (contextMenu) => { this.emit('push.contextMenus', contextMenu); }] : null, this.selectMenusDir ? [this.selectMenusDir, (selectMenu) => { this.emit('push.selectMenus', selectMenu); }] : null, this.modalComponentsDir ? [this.modalComponentsDir, (modal) => { this.emit('push.modals', modal); }] : null, this.predefinedMessagesDir ? [this.predefinedMessagesDir, (message) => { this.emit('push.predefinedMessages', message); }] : null)
-            .filter((s) => s !== null && typeof s[0] !== "function")
-            .forEach((s) => rds(s[0]).filter((f) => f !== 'example.js').map((f) => require(`${s[0]}/${f}`)).forEach(s[1]));
+        Array.of(this.eventsDir ? [this.eventsDir, (event) => { this.emit('push.events', event); }] : null, this.commandsDir ? [this.commandsDir, command => { this.emit('push.commands', command); }] : null, this.triggersDir ? [this.triggersDir, trigger => { this.emit('push.triggers', trigger); }] : null, this.buttonsDir ? [this.buttonsDir, button => { this.emit('push.buttons', button); }] : null, this.contextMenusDir ? [this.contextMenusDir, contextMenu => { this.emit('push.contextMenus', contextMenu); }] : null, this.selectMenusDir ? [this.selectMenusDir, selectMenu => { this.emit('push.selectMenus', selectMenu); }] : null, this.modalComponentsDir ? [this.modalComponentsDir, modal => { this.emit('push.modals', modal); }] : null, this.predefinedMessagesDir ? [this.predefinedMessagesDir, message => { this.emit('push.predefinedMessages', message); }] : null)
+            .filter(s => s !== null && typeof s[0] !== "function")
+            .forEach(s => rds(s[0]).filter(f => f !== 'example.js').map(f => require(`${s[0]}/${f}`)).forEach(s[1]));
         this.emit('push.events', {
             event: 'ready',
             execute: () => {
-                Promise.resolve().then(() => __importStar(require('chalk-template'))).then(({ template }) => console.log(template(Array.of(`ly logged in as {red ${this.user.username}}!`, `Ping: {rgb(255,127,0) ${Math.max(this.ws.ping, 0)} ms}`, `Guilds: {yellow ${this.guilds.cache.size}}`, `Users: {green ${this.users.cache.size}}`, `Channels: {blue ${this.channels.cache.size}}`, `Commands: {rgb(180,0,250) ${this.Commands.size}}`, `Components: {rgb(255,100,100) ${this.Modals.size + this.Buttons.size + this.SelectMenus.size + this.ContextMenus.size}}`, `Events: {white ${this.Events.size}}`, `Triggers: {grey ${this.Triggers.size}}`, `Pre-defined messages: {cyan ${this.PredefinedMessages.size}}`, `Statuses selection size: {rgb(0,255,255) ${this.Statuses.size}}`).map((m, i) => `{bold [READY]} Current${i == 0 ? '' : ' '}${m}`).join('\n'))));
+                // eslint-disable-next-line no-console
+                console.log((0, chalk_template_1.template)(Array.of(`ly logged in as {red ${this.user.username}}!`, ` Ping: {rgb(255,127,0) ${Math.max(this.ws.ping, 0)} ms}`, ` Guilds: {yellow ${this.guilds.cache.size}}`, ` Users: {green ${this.users.cache.size}}`, ` Channels: {blue ${this.channels.cache.size}}`, ` Commands: {rgb(180,0,250) ${this.Commands.size}}`, ` Components: {rgb(255,100,100) ${this.Modals.size + this.Buttons.size + this.SelectMenus.size + this.ContextMenus.size}}`, ` Events: {white ${this.Events.size}}`, ` Triggers: {grey ${this.Triggers.size}}`, ` Pre-defined messages: {cyan ${this.PredefinedMessages.size}}`, ` Statuses selection size: {rgb(0,255,255) ${this.Statuses.size}}`).map(m => `{bold [READY]} Current${m}`).join('\n')));
                 const status = this.Statuses.random();
                 if (!status)
                     return;
                 setInterval(() => this.user.setPresence({ activities: [status] }), 15e3);
-            }
+            },
         });
     }
     embed = () => new djs.EmbedBuilder(this.branding).setTimestamp();
@@ -771,17 +763,13 @@ class Bot extends djs.Client {
             },
         };
     };
-    gRTS = (key) => eval(`this.runtimeStats.${key}`);
     gev = (name) => Object.assign(this.runtimeStats.events.sEE, { [`${name}`]: new UtilsClass.RuntimeStatistics() });
-    regRTS = (key) => this.gRTS(key).reg();
-    bumpRTS = (key) => this.gRTS(key).exec();
+    regRTS = (key) => eval(`this.runtimeStats.${key}`).reg();
+    bumpRTS = (key) => eval(`this.runtimeStats.${key}`).exec();
     setBranding = (branding) => Object.assign(this.branding, branding);
     start() {
-        new rest_1.REST({ version: '10' })
-            .setToken(this.botToken)
-            .put(v10_1.Routes.applicationCommands(this.botId), { body: this.interactions })
-            .catch(console.error);
-        this.login(this.botToken);
+        void this.RESTClient.put(v10_1.Routes.applicationCommands(this.botId), { body: this.interactions });
+        void this.login(this.botToken);
     }
 }
 exports.default = {
