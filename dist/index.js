@@ -1,35 +1,9 @@
-"use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.Utils = exports.Client = void 0;
-const djs = __importStar(require("discord.js"));
-const v10_1 = require("discord-api-types/v10");
-const rest_1 = require("@discordjs/rest");
-const fs = __importStar(require("fs"));
-const os = __importStar(require("os"));
-const CT = __importStar(require("chalk-template"));
+import * as djs from 'discord.js';
+import { Routes } from 'discord-api-types/v10';
+import { REST } from '@discordjs/rest';
+import * as fs from 'fs';
+import * as os from 'os';
+import * as CT from 'chalk-template';
 class General {
     static Reduce = class {
         /** Adds two numbers together */
@@ -672,7 +646,7 @@ class Bot extends djs.Client {
             color: 0x2F3136,
         };
         this.interactions = [];
-        this.RESTClient = new rest_1.REST({ version: '10' }).setToken(this.botToken);
+        this.RESTClient = new REST({ version: '10' }).setToken(this.botToken);
         this
             .on('push.events', (event) => {
             this.regRTS('events');
@@ -768,13 +742,13 @@ class Bot extends djs.Client {
     bumpRTS = (key) => eval(`this.runtimeStats.${key}`).exec();
     setBranding = (branding) => Object.assign(this.branding, branding);
     start() {
-        void this.RESTClient.put(v10_1.Routes.applicationCommands(this.botId), { body: this.interactions });
+        void this.RESTClient.put(Routes.applicationCommands(this.botId), { body: this.interactions });
         void this.login(this.botToken);
     }
 }
-exports.default = {
+export default {
     Client: Bot,
     Utils: UtilsClass,
 };
-exports.Client = Bot;
-exports.Utils = UtilsClass;
+export const Client = Bot;
+export const Utils = UtilsClass;
