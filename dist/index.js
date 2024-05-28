@@ -29,7 +29,7 @@ const v10_1 = require("discord-api-types/v10");
 const rest_1 = require("@discordjs/rest");
 const fs = __importStar(require("fs"));
 const os = __importStar(require("os"));
-const chalk_template_1 = require("chalk-template");
+const CT = __importStar(require("chalk-template"));
 class General {
     static Reduce = class {
         /** Adds two numbers together */
@@ -732,7 +732,7 @@ class Bot extends djs.Client {
             event: 'ready',
             execute: () => {
                 // eslint-disable-next-line no-console
-                console.log((0, chalk_template_1.template)(Array.of(`ly logged in as {red ${this.user.username}}!`, ` Ping: {rgb(255,127,0) ${Math.max(this.ws.ping, 0)} ms}`, ` Guilds: {yellow ${this.guilds.cache.size}}`, ` Users: {green ${this.users.cache.size}}`, ` Channels: {blue ${this.channels.cache.size}}`, ` Commands: {rgb(180,0,250) ${this.Commands.size}}`, ` Components: {rgb(255,100,100) ${this.Modals.size + this.Buttons.size + this.SelectMenus.size + this.ContextMenus.size}}`, ` Events: {white ${this.Events.size}}`, ` Triggers: {grey ${this.Triggers.size}}`, ` Pre-defined messages: {cyan ${this.PredefinedMessages.size}}`, ` Statuses selection size: {rgb(0,255,255) ${this.Statuses.size}}`).map(m => `{bold [READY]} Current${m}`).join('\n')));
+                console.log(CT.template(Array.of(`ly logged in as {red ${this.user.username}}!`, ` Ping: {rgb(255,127,0) ${Math.max(this.ws.ping, 0)} ms}`, ` Guilds: {yellow ${this.guilds.cache.size}}`, ` Users: {green ${this.users.cache.size}}`, ` Channels: {blue ${this.channels.cache.size}}`, ` Commands: {rgb(180,0,250) ${this.Commands.size}}`, ` Components: {rgb(255,100,100) ${this.Modals.size + this.Buttons.size + this.SelectMenus.size + this.ContextMenus.size}}`, ` Events: {white ${this.Events.size}}`, ` Triggers: {grey ${this.Triggers.size}}`, ` Pre-defined messages: {cyan ${this.PredefinedMessages.size}}`, ` Statuses selection size: {rgb(0,255,255) ${this.Statuses.size}}`).map(m => `{bold [READY]} Current${m}`).join('\n')));
                 const status = this.Statuses.random();
                 if (!status)
                     return;

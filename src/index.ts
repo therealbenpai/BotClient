@@ -3,7 +3,7 @@ import { Routes } from 'discord-api-types/v10';
 import { REST } from '@discordjs/rest';
 import * as fs from 'fs';
 import * as os from 'os';
-import { template as chalkTemplate } from 'chalk-template';
+import * as CT from 'chalk-template';
 
 type ComponentType = djs.ButtonBuilder | djs.ContextMenuCommandBuilder | djs.SelectMenuBuilder | djs.ModalBuilder;
 
@@ -775,7 +775,7 @@ class Bot extends djs.Client {
 			execute: () => {
 				// eslint-disable-next-line no-console
 				console.log(
-					chalkTemplate(
+					CT.template(
 						Array.of(
 							`ly logged in as {red ${this.user!.username}}!`,
 							` Ping: {rgb(255,127,0) ${Math.max(this.ws.ping, 0)} ms}`,
