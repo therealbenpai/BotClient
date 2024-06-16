@@ -11,7 +11,7 @@
     "docs": "npx typedoc --options typedoc.config.cjs",
     "compile": "npx tsc",
     "jit": "npx tsc --watch",
-    "update": "eslint --fix && typedoc --options typedoc.config.cjs",
+    "update": "eslint --fix && npm run docs",
     "lint": "eslint . --fix"
   },
   "keywords": [
