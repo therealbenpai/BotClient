@@ -160,7 +160,7 @@ export default tsEslint.config(
                     { blankLine: 'always', prev: '*', next: 'method' },
                 ],
             }],
-            '@stylistic/max-len': ['warn', { code: 130 }],
+            '@stylistic/max-len': ['warn', { code: 140 }],
             '@stylistic/max-statements-per-line': 'warn',
             '@stylistic/multiline-ternary': ['warn', 'always-multiline'],
             '@stylistic/new-parens': 'warn',
@@ -228,8 +228,8 @@ export default tsEslint.config(
                     message: 'Don\'t use \'Array.of\'.',
                 },
             ],
-            "max-classes-per-file": ["error", 10], // to decrease later
-            "max-lines": "warn",
+            // "max-classes-per-file": ["error", 10], // to decrease later
+            // "max-lines": "warn",
         }
     })
 

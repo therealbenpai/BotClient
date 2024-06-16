@@ -1,4 +1,5 @@
 import * as djs from 'discord.js';
+// eslint-disable-next-line import/extensions
 import { Routes } from 'discord-api-types/v10';
 import { REST } from '@discordjs/rest';
 import * as fs from 'fs';
@@ -59,11 +60,11 @@ class TriggerMessage extends TriggerBase {
     prefix: boolean,
     config:
       | {
-        prefixes: string[] | null;
-        contains: string[] | null;
-        suffixes: string[] | null;
-        regex: RegExp[] | null;
-      }
+          prefixes: string[] | null;
+          contains: string[] | null;
+          suffixes: string[] | null;
+          regex: RegExp[] | null;
+        }
       | undefined
   ) {
     super(activated, prefix);
@@ -174,14 +175,7 @@ class CommandInfo {
   /** Aliases for the command */
   aliases: string[];
 
-  constructor(data: {
-    type: string;
-    description: string;
-    usage: string;
-    examples: string[];
-    disabled: boolean;
-    aliases: string[];
-  }) {
+  constructor(data: { type: string; description: string; usage: string; examples: string[]; disabled: boolean; aliases: string[] }) {
     this.type = data.type;
     this.description = data.description;
     this.usage = data.usage;
@@ -208,7 +202,8 @@ class ContextMenuComponent extends BaseComponent {
   constructor(name: string, info: ComponentInfo, data: djs.ContextMenuCommandBuilder) {
     super(name, info, data);
   }
-  setExecute = (handler: (client: Bot, interaction: djs.ContextMenuCommandInteraction) => void) => Object.assign(this, { execute: handler });
+  setExecute = (handler: (client: Bot, interaction: djs.ContextMenuCommandInteraction) => void) =>
+    Object.assign(this, { execute: handler });
 }
 
 /**
@@ -252,16 +247,17 @@ class ComponentInfo {
 /**
  * A class that works with times
  */
-class Timer {
-  static STMDict2: Map<string, [string, number]> = new Map()
-    .set('y', ['year', 31104e6])
-    .set('M', ['month', 2592e6])
-    .set('d', ['day', 864e5])
-    .set('h', ['hour', 36e5])
-    .set('m', ['minute', 6e4])
-    .set('s', ['second', 1e3]);
-  static stm = (v: string, k: string) => Number(v.slice(0, -1)) * (this.STMDict2.get(k)!.at(1) as number);
-  static ts = {
+class TimeManagement {
+  static STR_MS_DICT = new Map<string, [string, number]>([
+    ['y', ['year', 31104e6]],
+    ['M', ['month', 2592e6]],
+    ['d', ['day', 864e5]],
+    ['h', ['hour', 36e5]],
+    ['m', ['minute', 6e4]],
+    ['s', ['second', 1e3]],
+  ]);
+  static stringToMS = (stringAmount: string, symbol: string) => Number(stringAmount.slice(0, -1)) * this.STR_MS_DICT.get(symbol)![1];
+  static timeFormat = {
     locale: 'en-US',
     options: {
       year: 'numeric',
@@ -276,12 +272,14 @@ class Timer {
     } as Intl.DateTimeFormatOptions,
   };
   /** Converts a Date or number to a timestamp */
-  static timestamp = (value: Date | number) => new Intl.DateTimeFormat(this.ts.locale, this.ts.options).format(value);
+  static timestamp = (value: Date | number) => new Intl.DateTimeFormat(this.timeFormat.locale, this.timeFormat.options).format(value);
   /** Converts a string to milliseconds */
-  static stringToMilliseconds = (timeString: string) => timeString
-    .split(' ')
-    .map((value: string) => this.stm(value, value.slice(-1)))
-    .reduce((a, b) => a + b);
+  static stringToMilliseconds = (timeString: string) =>
+    timeString
+      .split(' ')
+      .map((value: string) => this.stringToMS(value, value.slice(-1)))
+      // eslint-disable-next-line id-length
+      .reduce((a, b) => a + b);
   /** Converts a string to seconds */
   static stringToSeconds = (timeString: string) => this.stringToMilliseconds(timeString) / 1e3;
   /** Converts a string to minutes */
@@ -293,54 +291,28 @@ class Timer {
  */
 class List {
   /** Joins an array of strings with a comma and a space */
-  static quick = (v: string[], type: Intl.ListFormatType) => new Intl.ListFormat('en-US', { style: 'long', type }).format(v);
+  static formatList = (list: string[], type: Intl.ListFormatType) => new Intl.ListFormat('en-US', { style: 'long', type }).format(list);
   /** Joins an array of strings with a comma and a space in the Conjunction style*/
-  static and = (value: string[]) => this.quick(value, 'conjunction');
+  static andJoin = (value: string[]) => this.formatList(value, 'conjunction');
   /** Joins an array of strings with a comma and a space in the Disjunction style*/
-  static or = (value: string[]) => this.quick(value, 'disjunction');
-}
-
-/**
- * A class that contains methods for processing text
- */
-class TextSym {
-  /** Quickly process a yes/no boolean value */
-  static quickProcess = (value: any, yes: string, no: string) => value ? yes : no;
-  /** Process a boolean value into a yes/no string */
-  static yn = (value: any) => this.quickProcess(value, 'Yes', 'No');
-  /** Process a boolean value into a true/false string */
-  static tf = (value: any) => this.quickProcess(value, 'True', 'False');
-  /** Process a boolean value into an on/off string */
-  static onOff = (value: any) => this.quickProcess(value, 'On', 'Off');
-  /** Process a boolean value into an enabled/disabled string */
-  static enabledDisabled = (value: any) => this.quickProcess(value, 'Enabled', 'Disabled');
-  /** Process a boolean value into an active/inactive string */
-  static activeInactive = (value: any) => this.quickProcess(value, 'Active', 'Inactive');
-  /** Process a boolean value into a success/failure string */
-  static successFailure = (value: any) => this.quickProcess(value, 'Success', 'Failure');
-  /** Process a boolean value into a pass/fail string */
-  static passFail = (value: any) => this.quickProcess(value, 'Pass', 'Fail');
-  /** Process a string into a pluralized string based on a value */
-  static pluralize = (value: any, text: string) => `${text}${value > 0 ? 's' : ''}`;
-  /** Join a long set of text into a single string value */
-  static longText = (joiner: string, ...value: any[]) => value.join(joiner);
+  static orJoin = (value: string[]) => this.formatList(value, 'disjunction');
 }
 
 class Markdown {
   /** Quickly process a string with a prefix and suffix */
-  static quickProcess = (a: string) => (v: string) => `${a}${v}${a}`;
+  static surroundString = (surrounding: string) => (mainString: string) => `${surrounding}${mainString}${surrounding}`;
   /** Process a string into a inline code segment */
-  static inlineCode = this.quickProcess('`');
+  static inlineCode = this.surroundString('`');
   /** Make text appear as bolded */
-  static bold = this.quickProcess('**');
+  static bold = this.surroundString('**');
   /** Make text appear as italicized */
-  static italic = this.quickProcess('*');
+  static italic = this.surroundString('*');
   /** Make text appear as underlined */
-  static underline = this.quickProcess('__');
+  static underline = this.surroundString('__');
   /** Make text appear with a strikethrough */
-  static strikethrough = this.quickProcess('~~');
+  static strikethrough = this.surroundString('~~');
   /** Make text appear as a spoiler */
-  static spoiler = this.quickProcess('||');
+  static spoiler = this.surroundString('||');
   /** Make text appear as a quote */
   static quote = (value: string) => `> ${value}`;
   /** Make text appear as a code block */
@@ -353,19 +325,19 @@ class Markdown {
 
 class Mentions {
   /** Quickly process a string with a prefix and suffix */
-  static quickProcess = (prefix: string, value: string, suffix = '') => `<${prefix}${value}${suffix}>`;
+  static wrapMention = (prefix: string, value: string, suffix = '') => `<${prefix}${value}${suffix}>`;
   /** Process a string into a role mention */
-  static role = (id: string) => this.quickProcess('@&', id);
+  static role = (id: string) => this.wrapMention('@&', id);
   /** Process a string into a user mention */
-  static user = (id: string) => this.quickProcess('@', id);
+  static user = (id: string) => this.wrapMention('@', id);
   /** Process a string into a channel mention */
-  static channel = (id: string) => this.quickProcess('#', id);
+  static channel = (id: string) => this.wrapMention('#', id);
   /** Process a string into an emoji */
-  static emoji = (name: string, id: string) => this.quickProcess(':', name, `:${id} `);
+  static emoji = (name: string, id: string) => this.wrapMention(':', name, `:${id} `);
   /** Process a string into an animated emoji */
-  static animatedEmoji = (name: string, id: string) => this.quickProcess('a:', name, `:${id} `);
+  static animatedEmoji = (name: string, id: string) => this.wrapMention('a:', name, `:${id} `);
   /** Process a string into a timestamp */
-  static timestamp = (timestamp: string, format = 'f') => this.quickProcess('t:', timestamp, `:${format}`);
+  static timestamp = (timestamp: string, format = 'f') => this.wrapMention('t:', timestamp, `:${format}`);
 }
 
 /**
@@ -411,19 +383,19 @@ class Event {
   event: string;
 
   /** The function that is called when the event is emitted */
-  async execute(client: Bot, ...args: any): Promise<void> {}
+  async execute(_client: Bot, ..._args: [unknown]): Promise<void> {}
 
   constructor(event: string) {
     this.event = event;
   }
-  setExecute = (handler: (client: Bot, ...args: any) => void) => Object.assign(this, { execute: handler });
+  setExecute = (handler: (client: Bot, ...args: [unknown]) => Promise<void>) => Object.assign(this, { execute: handler });
 }
 
 class Trigger {
   /** The name of the trigger */
   name: string;
   /** Whether or not the trigger is disabled */
-  globalDisable: boolean;
+  globalDisable = false;
   /** The configuration for the trigger */
   triggerConfig: {
     message: TriggerMessage;
@@ -433,22 +405,26 @@ class Trigger {
   };
 
   /** The function that is called when the trigger is activated */
-  async execute(client: Bot, message: djs.Message): Promise<void> {}
+  async execute(_client: Bot, _message: djs.Message): Promise<void> {}
 
-  constructor(name: string, message: TriggerMessage, channel: TriggerChannel, role: TriggerRole, user: TriggerUser) {
+  constructor(
+    name: string,
+    message: TriggerMessage,
+    channel: TriggerChannel,
+    role: TriggerRole,
+    user: TriggerUser,
+    handler: (client: Bot, message: djs.Message) => Promise<void>
+  ) {
     this.name = name;
-    this.globalDisable = false;
     this.triggerConfig = {
       message,
       channel,
       role,
       user,
     };
+    this.execute = handler;
   }
-  /** Set whether or not the trigger is disabled */
-  setGlobalDisable = (newValue: boolean) => Object.assign(this, { globalDisable: newValue });
-  /** Set the function that is called when the trigger is activated */
-  setExecute = (handler: (client: Bot, message: djs.Message) => void) => Object.assign(this, { execute: handler });
+
   /** The class that represents the execution conditions dealing with messages for a trigger */
   static Message = TriggerMessage;
   /** The class that represents the execution conditions dealing with channels for a trigger */
@@ -487,13 +463,13 @@ class Command {
   data: djs.SlashCommandBuilder;
 
   /** The function that is called when the command is executed */
-  async commandExecute(client: Bot, interaction: djs.CommandInteraction): Promise<void> {}
+  async commandExecute(_client: Bot, _interaction: djs.CommandInteraction): Promise<void> {}
 
   /** The function that is called when the command is executed */
-  async messageExecute(client: Bot, message: djs.Message): Promise<void> {}
+  async messageExecute(_client: Bot, _message: djs.Message): Promise<void> {}
 
   /** The function that is called when the command's autocomplete action is called */
-  async autocomplete(client: Bot, interaction: djs.AutocompleteInteraction): Promise<void> {}
+  async autocomplete(_client: Bot, _interaction: djs.AutocompleteInteraction): Promise<void> {}
 
   constructor(
     name: string,
@@ -522,12 +498,6 @@ class Command {
     this.type = types;
     this.data = data;
   }
-  /** Set the function that is called when the slash command is executed */
-  setCommand = (handler: (client: Bot, interaction: djs.CommandInteraction) => void) => Object.assign(this, { commandExecute: handler });
-  /** Set the function that is called when the text command is executed */
-  setMessage = (handler: (client: Bot, message: djs.Message) => void) => Object.assign(this, { messageExecute: handler });
-  /** Set the function that is called when the autocomplete action is called */
-  setAutocomplete = (handler: (client: Bot, interaction: djs.AutocompleteInteraction) => void) => Object.assign(this, { autocomplete: handler });
   /** The class that represents the restrictions that can be placed on a command */
   static Restrictions = CommandRestrictions;
   /** The class that contains information about a command */
@@ -541,14 +511,15 @@ class Message {
   displayName: string;
 
   /** The function that is called when the message is called */
-  // @ts-expect-error
-  async getValue(client: Bot): Promise<djs.APIMessage> {}
+  async getValue(_client: Bot): Promise<djs.APIMessage> {
+    return Promise.reject(new Error('message not properly initialized'));
+  }
 
-  constructor(name: string, displayName: string) {
+  constructor(name: string, displayName: string, handler: (client: Bot) => Promise<djs.APIMessage>) {
     this.name = name;
     this.displayName = displayName;
+    this.getValue = handler;
   }
-  content = (handler: (client: Bot) => djs.APIMessage) => Object.assign(this, { getValue: handler });
 }
 
 class DiscordInitializers {
@@ -591,22 +562,19 @@ class RuntimeStatistics {
     this.executed = 0;
   }
   /** Increment the number of times `X` has been registered */
-  reg = () => ++this.registered;
+  incrementRegistered = () => ++this.registered;
   /** Increment the number of times `X` has been executed */
-  exec = () => ++this.executed;
+  incrementExecuted = () => ++this.executed;
 }
-const thisSetter = (t: { name: string }) => {
-  throw new ReferenceError(`${t.name} is Read - Only`);
-};
 class UtilsClass {
-  static Time = Timer;
+  static Time = TimeManagement;
   static Discord = Discord;
-  static Text = TextSym;
   static List = List;
   static RuntimeStatistics = RuntimeStatistics;
 }
 
 class Bot extends djs.Client {
+  // todo, abstract a lot of this away into its own subclasses or fields
   botToken: string;
   prefix: string;
   botId: string;
@@ -631,7 +599,7 @@ class Bot extends djs.Client {
       channel: RuntimeStatistics;
       message: RuntimeStatistics;
     };
-    events: RuntimeStatistics & { sEE: Record<string, RuntimeStatistics> };
+    events: RuntimeStatistics & { eventExecution: Record<string, RuntimeStatistics> };
     components: {
       modals: RuntimeStatistics;
       buttons: RuntimeStatistics;
@@ -712,7 +680,7 @@ class Bot extends djs.Client {
         message: new UtilsClass.RuntimeStatistics(),
       },
       events: Object.assign(new UtilsClass.RuntimeStatistics(), {
-        sEE: {},
+        eventExecution: {},
       }),
       components: {
         modals: new UtilsClass.RuntimeStatistics(),
@@ -773,7 +741,7 @@ class Bot extends djs.Client {
       })
       .on('push.triggers', (trigger: Trigger) => {
         this.Triggers.set(trigger.name, trigger);
-        Object.entries(trigger.triggerConfig).forEach((value) => value[1].activated ? this.regRTS(`triggers.${value[0]}`) : null);
+        Object.entries(trigger.triggerConfig).forEach((value) => (value[1].activated ? this.regRTS(`triggers.${value[0]}`) : null));
       })
       .on('push.buttons', (button: ButtonComponent) => {
         this.Buttons.set(button.name, button);
@@ -811,74 +779,76 @@ class Bot extends djs.Client {
     Array.of(
       this.eventsDir
         ? [
-          this.eventsDir,
-          (event: string) => {
-            this.emit('push.events', event);
-          },
-        ]
+            this.eventsDir,
+            (event: string) => {
+              this.emit('push.events', event);
+            },
+          ]
         : null,
       this.commandsDir
         ? [
-          this.commandsDir,
-          command => {
-            this.emit('push.commands', command);
-          },
-        ]
+            this.commandsDir,
+            (command) => {
+              this.emit('push.commands', command);
+            },
+          ]
         : null,
       this.triggersDir
         ? [
-          this.triggersDir,
-          trigger => {
-            this.emit('push.triggers', trigger);
-          },
-        ]
+            this.triggersDir,
+            (trigger) => {
+              this.emit('push.triggers', trigger);
+            },
+          ]
         : null,
       this.buttonsDir
         ? [
-          this.buttonsDir,
-          button => {
-            this.emit('push.buttons', button);
-          },
-        ]
+            this.buttonsDir,
+            (button) => {
+              this.emit('push.buttons', button);
+            },
+          ]
         : null,
       this.contextMenusDir
         ? [
-          this.contextMenusDir,
-          contextMenu => {
-            this.emit('push.contextMenus', contextMenu);
-          },
-        ]
+            this.contextMenusDir,
+            (contextMenu) => {
+              this.emit('push.contextMenus', contextMenu);
+            },
+          ]
         : null,
       this.selectMenusDir
         ? [
-          this.selectMenusDir,
-          selectMenu => {
-            this.emit('push.selectMenus', selectMenu);
-          },
-        ]
+            this.selectMenusDir,
+            (selectMenu) => {
+              this.emit('push.selectMenus', selectMenu);
+            },
+          ]
         : null,
       this.modalComponentsDir
         ? [
-          this.modalComponentsDir,
-          modal => {
-            this.emit('push.modals', modal);
-          },
-        ]
+            this.modalComponentsDir,
+            (modal) => {
+              this.emit('push.modals', modal);
+            },
+          ]
         : null,
       this.predefinedMessagesDir
         ? [
-          this.predefinedMessagesDir,
-          message => {
-            this.emit('push.predefinedMessages', message);
-          },
-        ]
+            this.predefinedMessagesDir,
+            (message) => {
+              this.emit('push.predefinedMessages', message);
+            },
+          ]
         : null
     )
       .filter((s) => s !== null && typeof s[0] !== 'function')
-      .forEach((s) => rds(s![0] as string)
-        .filter((f) => f !== 'example.js')
-        .map((f) => require(`${s![0] as string}/${f}`))
-        .forEach(s![1] as (arg0: any) => void));
+      .forEach((s) =>
+        rds(s![0] as string)
+          .filter((f) => f !== 'example.js')
+          .map((f) => require(`${s![0] as string}/${f}`))
+          .forEach(s![1] as (arg0: any) => void)
+      );
     this.emit('push.events', {
       event: 'ready',
       execute: () => {
@@ -892,9 +862,7 @@ class Bot extends djs.Client {
               ` Users: {green ${this.users.cache.size}}`,
               ` Channels: {blue ${this.channels.cache.size}}`,
               ` Commands: {rgb(180,0,250) ${this.Commands.size}}`,
-              ` Components: {rgb(255,100,100) ${
-                this.Modals.size + this.Buttons.size + this.SelectMenus.size + this.ContextMenus.size
-              }}`,
+              ` Components: {rgb(255,100,100) ${this.Modals.size + this.Buttons.size + this.SelectMenus.size + this.ContextMenus.size}}`,
               ` Events: {white ${this.Events.size}}`,
               ` Triggers: {grey ${this.Triggers.size}}`,
               ` Pre-defined messages: {cyan ${this.PredefinedMessages.size}}`,
@@ -924,22 +892,23 @@ class Bot extends djs.Client {
       ram: {
         botOnly: {
           rawValue: (rawBRam > 1024 ? rawBRam / 1024 : rawBRam).toFixed(2),
-          percentage: (botRam / os.totalmem() * 1e2).toFixed(2),
+          percentage: ((botRam / os.totalmem()) * 1e2).toFixed(2),
           unit: botRam / 1024 ** 3 > 1 ? 'GB' : 'MB',
         },
         global: {
           rawValue: (rawGRam > 1024 ? rawGRam / 1024 : rawGRam).toFixed(2),
-          percentage: (globalRam / os.totalmem() * 1e2).toFixed(2),
+          percentage: ((globalRam / os.totalmem()) * 1e2).toFixed(2),
           unit: globalRam / 1024 ** 3 > 1 ? 'GB' : 'MB',
         },
       },
     };
   };
-  gev = (name: string) => Object.assign(this.runtimeStats.events.sEE, {
-    [`${name}`]: new UtilsClass.RuntimeStatistics(),
-  });
-  regRTS = (key: string) => (eval(`this.runtimeStats.${key}`) as RuntimeStatistics).reg();
-  bumpRTS = (key: string) => (eval(`this.runtimeStats.${key}`) as RuntimeStatistics).exec();
+  gev = (name: string) =>
+    Object.assign(this.runtimeStats.events.eventExecution, {
+      [`${name}`]: new UtilsClass.RuntimeStatistics(),
+    });
+  regRTS = (key: string) => (eval(`this.runtimeStats.${key}`) as RuntimeStatistics).incrementRegistered();
+  bumpRTS = (key: string) => (eval(`this.runtimeStats.${key}`) as RuntimeStatistics).incrementExecuted();
   setBranding = (branding: djs.EmbedData) => Object.assign(this.branding, branding);
 
   start() {
