@@ -63,7 +63,7 @@ class BaseComponent {
 }
 
 /**
- * A class that represents the exection conditions dealing with messages for a trigger
+ * A class that represents the execution conditions dealing with messages for a trigger
  */
 class TriggerMessage extends TriggerBase {
   /** The prefixes that the message can start with */
