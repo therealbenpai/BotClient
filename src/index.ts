@@ -60,11 +60,11 @@ class TriggerMessage extends TriggerBase {
     prefix: boolean,
     config:
       | {
-          prefixes: string[] | null;
-          contains: string[] | null;
-          suffixes: string[] | null;
-          regex: RegExp[] | null;
-        }
+        prefixes: string[] | null;
+        contains: string[] | null;
+        suffixes: string[] | null;
+        regex: RegExp[] | null;
+      }
       | undefined
   ) {
     super(activated, prefix);
@@ -202,8 +202,7 @@ class ContextMenuComponent extends BaseComponent {
   constructor(name: string, info: ComponentInfo, data: djs.ContextMenuCommandBuilder) {
     super(name, info, data);
   }
-  setExecute = (handler: (client: Bot, interaction: djs.ContextMenuCommandInteraction) => void) =>
-    Object.assign(this, { execute: handler });
+  setExecute = (handler: (client: Bot, interaction: djs.ContextMenuCommandInteraction) => void) => Object.assign(this, { execute: handler });
 }
 
 /**
@@ -274,12 +273,11 @@ class TimeManagement {
   /** Converts a Date or number to a timestamp */
   static timestamp = (value: Date | number) => new Intl.DateTimeFormat(this.timeFormat.locale, this.timeFormat.options).format(value);
   /** Converts a string to milliseconds */
-  static stringToMilliseconds = (timeString: string) =>
-    timeString
-      .split(' ')
-      .map((value: string) => this.stringToMS(value, value.slice(-1)))
-      // eslint-disable-next-line id-length
-      .reduce((a, b) => a + b);
+  static stringToMilliseconds = (timeString: string) => timeString
+    .split(' ')
+    .map((value: string) => this.stringToMS(value, value.slice(-1)))
+  // eslint-disable-next-line id-length
+    .reduce((a, b) => a + b);
   /** Converts a string to seconds */
   static stringToSeconds = (timeString: string) => this.stringToMilliseconds(timeString) / 1e3;
   /** Converts a string to minutes */
@@ -741,7 +739,7 @@ class Bot extends djs.Client {
       })
       .on('push.triggers', (trigger: Trigger) => {
         this.Triggers.set(trigger.name, trigger);
-        Object.entries(trigger.triggerConfig).forEach((value) => (value[1].activated ? this.regRTS(`triggers.${value[0]}`) : null));
+        Object.entries(trigger.triggerConfig).forEach((value) => value[1].activated ? this.regRTS(`triggers.${value[0]}`) : null);
       })
       .on('push.buttons', (button: ButtonComponent) => {
         this.Buttons.set(button.name, button);
@@ -779,76 +777,74 @@ class Bot extends djs.Client {
     Array.of(
       this.eventsDir
         ? [
-            this.eventsDir,
-            (event: string) => {
-              this.emit('push.events', event);
-            },
-          ]
+          this.eventsDir,
+          (event: string) => {
+            this.emit('push.events', event);
+          },
+        ]
         : null,
       this.commandsDir
         ? [
-            this.commandsDir,
-            (command) => {
-              this.emit('push.commands', command);
-            },
-          ]
+          this.commandsDir,
+          command => {
+            this.emit('push.commands', command);
+          },
+        ]
         : null,
       this.triggersDir
         ? [
-            this.triggersDir,
-            (trigger) => {
-              this.emit('push.triggers', trigger);
-            },
-          ]
+          this.triggersDir,
+          trigger => {
+            this.emit('push.triggers', trigger);
+          },
+        ]
         : null,
       this.buttonsDir
         ? [
-            this.buttonsDir,
-            (button) => {
-              this.emit('push.buttons', button);
-            },
-          ]
+          this.buttonsDir,
+          button => {
+            this.emit('push.buttons', button);
+          },
+        ]
         : null,
       this.contextMenusDir
         ? [
-            this.contextMenusDir,
-            (contextMenu) => {
-              this.emit('push.contextMenus', contextMenu);
-            },
-          ]
+          this.contextMenusDir,
+          contextMenu => {
+            this.emit('push.contextMenus', contextMenu);
+          },
+        ]
         : null,
       this.selectMenusDir
         ? [
-            this.selectMenusDir,
-            (selectMenu) => {
-              this.emit('push.selectMenus', selectMenu);
-            },
-          ]
+          this.selectMenusDir,
+          selectMenu => {
+            this.emit('push.selectMenus', selectMenu);
+          },
+        ]
         : null,
       this.modalComponentsDir
         ? [
-            this.modalComponentsDir,
-            (modal) => {
-              this.emit('push.modals', modal);
-            },
-          ]
+          this.modalComponentsDir,
+          modal => {
+            this.emit('push.modals', modal);
+          },
+        ]
         : null,
       this.predefinedMessagesDir
         ? [
-            this.predefinedMessagesDir,
-            (message) => {
-              this.emit('push.predefinedMessages', message);
-            },
-          ]
+          this.predefinedMessagesDir,
+          message => {
+            this.emit('push.predefinedMessages', message);
+          },
+        ]
         : null
     )
       .filter((s) => s !== null && typeof s[0] !== 'function')
-      .forEach((s) =>
-        rds(s![0] as string)
-          .filter((f) => f !== 'example.js')
-          .map((f) => require(`${s![0] as string}/${f}`))
-          .forEach(s![1] as (arg0: any) => void)
-      );
+      .forEach((s) => rds(s![0] as string)
+        .filter((f) => f !== 'example.js')
+        .map((f) => require(`${s![0] as string}/${f}`))
+        .forEach(s![1] as (arg0: any) => void));
     this.emit('push.events', {
       event: 'ready',
       execute: () => {
@@ -892,21 +888,20 @@ class Bot extends djs.Client {
       ram: {
         botOnly: {
           rawValue: (rawBRam > 1024 ? rawBRam / 1024 : rawBRam).toFixed(2),
-          percentage: ((botRam / os.totalmem()) * 1e2).toFixed(2),
+          percentage: (botRam / os.totalmem() * 1e2).toFixed(2),
           unit: botRam / 1024 ** 3 > 1 ? 'GB' : 'MB',
         },
         global: {
           rawValue: (rawGRam > 1024 ? rawGRam / 1024 : rawGRam).toFixed(2),
-          percentage: ((globalRam / os.totalmem()) * 1e2).toFixed(2),
+          percentage: (globalRam / os.totalmem() * 1e2).toFixed(2),
           unit: globalRam / 1024 ** 3 > 1 ? 'GB' : 'MB',
         },
       },
     };
   };
-  gev = (name: string) =>
-    Object.assign(this.runtimeStats.events.eventExecution, {
-      [`${name}`]: new UtilsClass.RuntimeStatistics(),
-    });
+  gev = (name: string) => Object.assign(this.runtimeStats.events.eventExecution, {
+    [`${name}`]: new UtilsClass.RuntimeStatistics(),
+  });
   regRTS = (key: string) => (eval(`this.runtimeStats.${key}`) as RuntimeStatistics).incrementRegistered();
   bumpRTS = (key: string) => (eval(`this.runtimeStats.${key}`) as RuntimeStatistics).incrementExecuted();
   setBranding = (branding: djs.EmbedData) => Object.assign(this.branding, branding);
