@@ -12,7 +12,7 @@
     "compile": "npx tsc",
     "jit": "npx tsc --watch",
     "update": "eslint --fix && npm run docs",
-    "lint": "eslint . --fix"
+    "lint": "eslint --fix ."
   },
   "keywords": [
     "discord.js",

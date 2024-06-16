@@ -47,7 +47,6 @@ export default tsEslint.config(
             'eol-last': 'error',
             'eqeqeq': 'error',
             'func-call-spacing': 'error',
-            'indent': ['error', "tab"],
             'jsdoc/check-values': 'error',
             'jsdoc/require-description': 'error',
             'key-spacing': 'error',

@@ -1,0 +1,4 @@
+{
+  // enable flat config files (eslint.config.*js)
+  "eslint.experimental.useFlatConfig": true
+}
