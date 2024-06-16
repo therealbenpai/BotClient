@@ -669,46 +669,6 @@ class UtilsClass extends General {
 	static Text = TextSym;
 	static List = List;
 	static RuntimeStatistics = RuntimeStatistics;
-
-	get Time() {
-		return Timer;
-	}
-
-	set Time(_) {
-		thisSetter(Timer);
-	}
-
-	get Discord() {
-		return Discord;
-	}
-
-	set Discord(_) {
-		thisSetter(Discord);
-	}
-
-	get Text() {
-		return TextSym;
-	}
-
-	set Text(_) {
-		thisSetter(TextSym);
-	}
-
-	get List() {
-		return List;
-	}
-
-	set List(_) {
-		thisSetter(List);
-	}
-
-	get RuntimeStatistics() {
-		return RuntimeStatistics;
-	}
-
-	set RuntimeStatistics(_) {
-		thisSetter(RuntimeStatistics);
-	}
 }
 
 class Bot extends djs.Client {
@@ -868,8 +828,7 @@ class Bot extends djs.Client {
 				if (command.type.text) this.regRTS("commands.text");
 				if (command.type.slash) {
 					this.regRTS("commands.slash");
-					// @ts-expect-error
-					this.interactions.push(command.data.toJSON());
+					this.interactions.push(command.data.toJSON() as any);
 				}
 			})
 			.on("push.triggers", (trigger: Trigger) => {
@@ -885,8 +844,7 @@ class Bot extends djs.Client {
 			.on("push.contextMenus", (contextMenu: ContextMenuComponent) => {
 				this.ContextMenus.set(contextMenu.name, contextMenu);
 				this.regRTS("components.contextMenus");
-				// @ts-expect-error
-				this.interactions.push(contextMenu.data.toJSON());
+				this.interactions.push(contextMenu.data.toJSON() as any);
 			})
 			.on("push.selectMenus", (selectMenu: SelectMenuComponent) => {
 				this.SelectMenus.set(selectMenu.name, selectMenu);
@@ -901,9 +859,9 @@ class Bot extends djs.Client {
 				this.PredefinedMessages.set(
 					message.name,
 					Object.assign(message, {
-						getValue: (c: Bot) => {
+						getValue: (client: Bot) => {
 							this.bumpRTS("predefinedMessages");
-							return message.getValue(c);
+							return message.getValue(client);
 						},
 					})
 				);
