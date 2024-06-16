@@ -228,7 +228,8 @@ export default tsEslint.config(
                     message: 'Don\'t use \'Array.of\'.',
                 },
             ],
-
+            "max-classes-per-file": ["error", 10], // to decrease later
+            "max-lines": "warn",
         }
     })
 

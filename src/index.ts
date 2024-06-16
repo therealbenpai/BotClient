@@ -5,28 +5,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as CT from 'chalk-template';
 
-type ComponentType =
-  | djs.ButtonBuilder
-  | djs.ContextMenuCommandBuilder
-  | djs.SelectMenuBuilder
-  | djs.ModalBuilder;
-
-class General {
-  static Reduce = class {
-    /** Adds two numbers together */
-    static add = (a: number, b: number): number => a + b;
-    /** Subtracts the second number from the first */
-    static subtract = (a: number, b: number) => a - b;
-    /** Multiplies two numbers together */
-    static multiply = (a: number, b: number) => a * b;
-    /** Divides the first number by the second */
-    static divide = (a: number, b: number) => a / b;
-    /** Raises the first number to the power of the second */
-    static exponent = (a: number, b: number) => a ** b;
-    /** Returns the remainder of the first number divided by the second */
-    static modulo = (a: number, b: number) => a % b;
-  };
-}
+type ComponentType = djs.ButtonBuilder | djs.ContextMenuCommandBuilder | djs.SelectMenuBuilder | djs.ModalBuilder;
 
 class TriggerBase {
   /** Whether or not the trigger is activated */
@@ -104,11 +83,7 @@ class TriggerChannel extends TriggerBase {
   /** The types of channels that the trigger can be activated in */
   types: djs.ChannelType[];
 
-  constructor(
-    activated: boolean,
-    prefix: boolean,
-    config: { id: string[] | null; types: djs.ChannelType[] | null } | undefined
-  ) {
+  constructor(activated: boolean, prefix: boolean, config: { id: string[] | null; types: djs.ChannelType[] | null } | undefined) {
     super(activated, prefix);
     this.id = config!.id ?? [];
     this.types = config!.types ?? [];
@@ -122,11 +97,7 @@ class TriggerRole extends TriggerBase {
   /** The IDs of the roles that can activate the trigger */
   id: string[];
 
-  constructor(
-    activated: boolean,
-    prefix: boolean,
-    config: { id: string[] | null } | undefined
-  ) {
+  constructor(activated: boolean, prefix: boolean, config: { id: string[] | null } | undefined) {
     super(activated, prefix);
     this.id = config!.id ?? [];
   }
@@ -139,11 +110,7 @@ class TriggerUser extends TriggerBase {
   /** The IDs of the users that can activate the trigger */
   id: string[];
 
-  constructor(
-    activated: boolean,
-    prefix: boolean,
-    config: { id: string[] | null } | undefined
-  ) {
+  constructor(activated: boolean, prefix: boolean, config: { id: string[] | null } | undefined) {
     super(activated, prefix);
     this.id = config!.id ?? [];
   }
@@ -231,28 +198,17 @@ class ButtonComponent extends BaseComponent {
   constructor(name: string, info: ComponentInfo, data: djs.ButtonBuilder) {
     super(name, info, data);
   }
-  setExecute = (
-    handler: (client: Bot, interaction: djs.ButtonInteraction) => void
-  ) => Object.assign(this, { execute: handler });
+  setExecute = (handler: (client: Bot, interaction: djs.ButtonInteraction) => void) => Object.assign(this, { execute: handler });
 }
 
 /**
  * A class that represents a Context Menu component
  */
 class ContextMenuComponent extends BaseComponent {
-  constructor(
-    name: string,
-    info: ComponentInfo,
-    data: djs.ContextMenuCommandBuilder
-  ) {
+  constructor(name: string, info: ComponentInfo, data: djs.ContextMenuCommandBuilder) {
     super(name, info, data);
   }
-  setExecute = (
-    handler: (
-      client: Bot,
-      interaction: djs.ContextMenuCommandInteraction
-    ) => void
-  ) => Object.assign(this, { execute: handler });
+  setExecute = (handler: (client: Bot, interaction: djs.ContextMenuCommandInteraction) => void) => Object.assign(this, { execute: handler });
 }
 
 /**
@@ -262,9 +218,7 @@ class ModalComponent extends BaseComponent {
   constructor(name: string, info: ComponentInfo, data: djs.ModalBuilder) {
     super(name, info, data);
   }
-  setExecute = (
-    handler: (client: Bot, interaction: djs.ModalSubmitInteraction) => void
-  ) => Object.assign(this, { execute: handler });
+  setExecute = (handler: (client: Bot, interaction: djs.ModalSubmitInteraction) => void) => Object.assign(this, { execute: handler });
 }
 
 /**
@@ -274,9 +228,7 @@ class SelectMenuComponent extends BaseComponent {
   constructor(name: string, info: ComponentInfo, data: djs.SelectMenuBuilder) {
     super(name, info, data);
   }
-  setExecute = (
-    handler: (client: Bot, interaction: djs.SelectMenuInteraction) => void
-  ) => Object.assign(this, { execute: handler });
+  setExecute = (handler: (client: Bot, interaction: djs.SelectMenuInteraction) => void) => Object.assign(this, { execute: handler });
 }
 
 /**
@@ -301,13 +253,13 @@ class ComponentInfo {
  * A class that works with times
  */
 class Timer {
-  static STMDict2 = new Map()
+  static STMDict2: Map<string, [string, number]> = new Map()
     .set('y', ['year', 31104e6])
     .set('M', ['month', 2592e6])
     .set('d', ['day', 864e5])
     .set('h', ['hour', 36e5])
     .set('m', ['minute', 6e4])
-    .set('s', ['second', 1e3]) as Map<string, [string, number]>;
+    .set('s', ['second', 1e3]);
   static stm = (v: string, k: string) => Number(v.slice(0, -1)) * (this.STMDict2.get(k)!.at(1) as number);
   static ts = {
     locale: 'en-US',
@@ -329,7 +281,7 @@ class Timer {
   static stringToMilliseconds = (timeString: string) => timeString
     .split(' ')
     .map((value: string) => this.stm(value, value.slice(-1)))
-    .reduce(General.Reduce.add);
+    .reduce((a, b) => a + b);
   /** Converts a string to seconds */
   static stringToSeconds = (timeString: string) => this.stringToMilliseconds(timeString) / 1e3;
   /** Converts a string to minutes */
@@ -427,11 +379,11 @@ class Embed {
     inline,
   });
   /** Quickly create an author for an embed */
-  static Author = (
-    name: string,
-    url: string | undefined | null = null,
-    iconURL: string | undefined | null = null
-  ) => ({ name, url, iconURL });
+  static Author = (name: string, url: string | undefined | null = null, iconURL: string | undefined | null = null) => ({
+    name,
+    url,
+    iconURL,
+  });
   /** Quickly create a footer for an embed */
   static Footer = (text: string, url: string | undefined | null = null) => ({
     text,
@@ -483,13 +435,7 @@ class Trigger {
   /** The function that is called when the trigger is activated */
   async execute(client: Bot, message: djs.Message): Promise<void> {}
 
-  constructor(
-    name: string,
-    message: TriggerMessage,
-    channel: TriggerChannel,
-    role: TriggerRole,
-    user: TriggerUser
-  ) {
+  constructor(name: string, message: TriggerMessage, channel: TriggerChannel, role: TriggerRole, user: TriggerUser) {
     this.name = name;
     this.globalDisable = false;
     this.triggerConfig = {
@@ -541,19 +487,13 @@ class Command {
   data: djs.SlashCommandBuilder;
 
   /** The function that is called when the command is executed */
-  async commandExecute(
-    client: Bot,
-    interaction: djs.CommandInteraction
-  ): Promise<void> {}
+  async commandExecute(client: Bot, interaction: djs.CommandInteraction): Promise<void> {}
 
   /** The function that is called when the command is executed */
   async messageExecute(client: Bot, message: djs.Message): Promise<void> {}
 
   /** The function that is called when the command's autocomplete action is called */
-  async autocomplete(
-    client: Bot,
-    interaction: djs.AutocompleteInteraction
-  ): Promise<void> {}
+  async autocomplete(client: Bot, interaction: djs.AutocompleteInteraction): Promise<void> {}
 
   constructor(
     name: string,
@@ -583,15 +523,11 @@ class Command {
     this.data = data;
   }
   /** Set the function that is called when the slash command is executed */
-  setCommand = (
-    handler: (client: Bot, interaction: djs.CommandInteraction) => void
-  ) => Object.assign(this, { commandExecute: handler });
+  setCommand = (handler: (client: Bot, interaction: djs.CommandInteraction) => void) => Object.assign(this, { commandExecute: handler });
   /** Set the function that is called when the text command is executed */
   setMessage = (handler: (client: Bot, message: djs.Message) => void) => Object.assign(this, { messageExecute: handler });
   /** Set the function that is called when the autocomplete action is called */
-  setAutocomplete = (
-    handler: (client: Bot, interaction: djs.AutocompleteInteraction) => void
-  ) => Object.assign(this, { autocomplete: handler });
+  setAutocomplete = (handler: (client: Bot, interaction: djs.AutocompleteInteraction) => void) => Object.assign(this, { autocomplete: handler });
   /** The class that represents the restrictions that can be placed on a command */
   static Restrictions = CommandRestrictions;
   /** The class that contains information about a command */
@@ -662,7 +598,7 @@ class RuntimeStatistics {
 const thisSetter = (t: { name: string }) => {
   throw new ReferenceError(`${t.name} is Read - Only`);
 };
-class UtilsClass extends General {
+class UtilsClass {
   static Time = Timer;
   static Discord = Discord;
   static Text = TextSym;
@@ -957,10 +893,7 @@ class Bot extends djs.Client {
               ` Channels: {blue ${this.channels.cache.size}}`,
               ` Commands: {rgb(180,0,250) ${this.Commands.size}}`,
               ` Components: {rgb(255,100,100) ${
-                this.Modals.size +
-                this.Buttons.size +
-                this.SelectMenus.size +
-                this.ContextMenus.size
+                this.Modals.size + this.Buttons.size + this.SelectMenus.size + this.ContextMenus.size
               }}`,
               ` Events: {white ${this.Events.size}}`,
               ` Triggers: {grey ${this.Triggers.size}}`,
@@ -975,10 +908,7 @@ class Bot extends djs.Client {
         if (!status) {
           return;
         }
-        setInterval(
-          () => this.user!.setPresence({ activities: [status] }),
-          15e3
-        );
+        setInterval(() => this.user!.setPresence({ activities: [status] }), 15e3);
       },
     });
   }

@@ -1,4 +1,5 @@
-/** @type {import('typedoc').TypeDocOptions} */
+/* This is obviously copied from another project without any edits, please fix
+/** @type {import('typedoc').TypeDocOptions} *\/
 module.exports = {
     cname: 'docs.sparty18.com',
     commentStyle: "all",
@@ -18,7 +19,6 @@ module.exports = {
     gaID: 'G-8Z61QGB1L9',
     hideGenerator: true,
     includeVersion: true,
-    includeVersion: true,
     json: 'docs/doc.json',
     lightHighlightTheme: "material-theme-ocean",
     name: "Benpai's TypeScript Game",
@@ -32,3 +32,4 @@ module.exports = {
     sort: ["static-first", "kind", "enum-value-ascending"],
     theme: "my-theme",
 }
+ */
