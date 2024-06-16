@@ -150,7 +150,7 @@ export default tsEslint.config(
             '@stylistic/function-call-spacing': 'warn',
             '@stylistic/function-paren-newline': ['warn', 'multiline-arguments'],
             '@stylistic/implicit-arrow-linebreak': 'warn',
-            '@stylistic/indent': ['warn', 4, { SwitchCase: 1 }],
+            '@stylistic/indent': ['warn', 2, { SwitchCase: 1 }],
             '@stylistic/key-spacing': 'warn',
             '@stylistic/keyword-spacing': 'warn',
             // '@stylistic/linebreak-style': 'warn',
