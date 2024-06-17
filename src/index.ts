@@ -2,7 +2,7 @@ import * as djs from 'discord.js';
 // eslint-disable-next-line import/extensions
 import { Routes } from 'discord-api-types/v10';
 import { REST } from '@discordjs/rest';
-import * as fs from 'fs';
+// import * as fs from 'fs';
 import * as os from 'os';
 import * as CT from 'chalk-template';
 
@@ -27,18 +27,20 @@ class BaseComponent {
   info: ComponentInfo;
   /** The Type of Component that this is */
   data: ComponentType;
+  execute: (client: Bot, interaction: djs.BaseInteraction) => Promise<void>;
 
   /** The Function that is called when the Component is interacted with */
-  async execute(client: Bot, interaction: djs.BaseInteraction): Promise<void> {}
 
-  constructor(name: string, info: ComponentInfo, data: ComponentType) {
+  constructor(
+    name: string,
+    info: ComponentInfo,
+    data: ComponentType,
+    handler: (client: Bot, interaction: djs.BaseInteraction) => Promise<void>
+  ) {
     this.name = name;
     this.info = info;
     this.data = data;
-  }
-
-  setExecute(handler: (client: Bot, interaction: djs.BaseInteraction) => void) {
-    Object.assign(this, { execute: handler });
+    this.execute = handler;
   }
 }
 
@@ -60,11 +62,11 @@ class TriggerMessage extends TriggerBase {
     prefix: boolean,
     config:
       | {
-        prefixes: string[] | null;
-        contains: string[] | null;
-        suffixes: string[] | null;
-        regex: RegExp[] | null;
-      }
+          prefixes: string[] | null;
+          contains: string[] | null;
+          suffixes: string[] | null;
+          regex: RegExp[] | null;
+        }
       | undefined
   ) {
     super(activated, prefix);
@@ -189,40 +191,56 @@ class CommandInfo {
  * A class that represents a Button component
  */
 class ButtonComponent extends BaseComponent {
-  constructor(name: string, info: ComponentInfo, data: djs.ButtonBuilder) {
-    super(name, info, data);
+  constructor(
+    name: string,
+    info: ComponentInfo,
+    data: djs.ButtonBuilder,
+    handler: (client: Bot, interaction: djs.BaseInteraction<djs.CacheType>) => Promise<void>
+  ) {
+    super(name, info, data, handler);
   }
-  setExecute = (handler: (client: Bot, interaction: djs.ButtonInteraction) => void) => Object.assign(this, { execute: handler });
 }
 
 /**
  * A class that represents a Context Menu component
  */
 class ContextMenuComponent extends BaseComponent {
-  constructor(name: string, info: ComponentInfo, data: djs.ContextMenuCommandBuilder) {
-    super(name, info, data);
+  constructor(
+    name: string,
+    info: ComponentInfo,
+    data: djs.ContextMenuCommandBuilder,
+    handler: (client: Bot, interaction: djs.BaseInteraction<djs.CacheType>) => Promise<void>
+  ) {
+    super(name, info, data, handler);
   }
-  setExecute = (handler: (client: Bot, interaction: djs.ContextMenuCommandInteraction) => void) => Object.assign(this, { execute: handler });
 }
 
 /**
  * A class that represents a Modal component
  */
 class ModalComponent extends BaseComponent {
-  constructor(name: string, info: ComponentInfo, data: djs.ModalBuilder) {
-    super(name, info, data);
+  constructor(
+    name: string,
+    info: ComponentInfo,
+    data: djs.ModalBuilder,
+    handler: (client: Bot, interaction: djs.BaseInteraction<djs.CacheType>) => Promise<void>
+  ) {
+    super(name, info, data, handler);
   }
-  setExecute = (handler: (client: Bot, interaction: djs.ModalSubmitInteraction) => void) => Object.assign(this, { execute: handler });
 }
 
 /**
  * A class that represents a Select Menu component
  */
 class SelectMenuComponent extends BaseComponent {
-  constructor(name: string, info: ComponentInfo, data: djs.SelectMenuBuilder) {
-    super(name, info, data);
+  constructor(
+    name: string,
+    info: ComponentInfo,
+    data: djs.SelectMenuBuilder,
+    handler: (client: Bot, interaction: djs.BaseInteraction<djs.CacheType>) => Promise<void>
+  ) {
+    super(name, info, data, handler);
   }
-  setExecute = (handler: (client: Bot, interaction: djs.SelectMenuInteraction) => void) => Object.assign(this, { execute: handler });
 }
 
 /**
@@ -247,7 +265,7 @@ class ComponentInfo {
  * A class that works with times
  */
 class TimeManagement {
-  static STR_MS_DICT = new Map<string, [string, number]>([
+  static STR_TO_MS_DICT = new Map<string, [string, number]>([
     ['y', ['year', 31104e6]],
     ['M', ['month', 2592e6]],
     ['d', ['day', 864e5]],
@@ -255,7 +273,7 @@ class TimeManagement {
     ['m', ['minute', 6e4]],
     ['s', ['second', 1e3]],
   ]);
-  static stringToMS = (stringAmount: string, symbol: string) => Number(stringAmount.slice(0, -1)) * this.STR_MS_DICT.get(symbol)![1];
+  static stringToMS = (stringAmount: string, symbol: string) => Number(stringAmount.slice(0, -1)) * this.STR_TO_MS_DICT.get(symbol)![1];
   static timeFormat = {
     locale: 'en-US',
     options: {
@@ -273,11 +291,12 @@ class TimeManagement {
   /** Converts a Date or number to a timestamp */
   static timestamp = (value: Date | number) => new Intl.DateTimeFormat(this.timeFormat.locale, this.timeFormat.options).format(value);
   /** Converts a string to milliseconds */
-  static stringToMilliseconds = (timeString: string) => timeString
-    .split(' ')
-    .map((value: string) => this.stringToMS(value, value.slice(-1)))
-  // eslint-disable-next-line id-length
-    .reduce((a, b) => a + b);
+  static stringToMilliseconds = (timeString: string) =>
+    timeString
+      .split(' ')
+      .map((value: string) => this.stringToMS(value, value.slice(-1)))
+      // eslint-disable-next-line id-length
+      .reduce((a, b) => a + b);
   /** Converts a string to seconds */
   static stringToSeconds = (timeString: string) => this.stringToMilliseconds(timeString) / 1e3;
   /** Converts a string to minutes */
@@ -720,11 +739,13 @@ class Bot extends djs.Client {
     this.RESTClient = new REST({ version: '10' }).setToken(this.botToken);
     this.on('push.events', (event: Event) => {
       this.regRTS('events');
-      this.gev(event.event);
+      this.noClueWhatThisIsUsedToBeGev(event.event);
       this.Events.set(event.event, event);
-      this.on(event.event, async (...args) => {
-        this.bumpRTS(`events.sEE.${event.event}`);
-        await event.execute(this, ...args);
+      // ! fix linting rule below
+      // eslint-disable-next-line ts/no-misused-promises
+      this.on(event.event, async (...args: [unknown]) => {
+        this.bumpRTS(`events.eventExecution.${event.event}`);
+        await event.execute(this, [...args]);
       });
     })
       .on('push.commands', (command: Command) => {
@@ -734,12 +755,12 @@ class Bot extends djs.Client {
         }
         if (command.type.slash) {
           this.regRTS('commands.slash');
-          this.interactions.push(command.data.toJSON() as any);
+          this.interactions.push(command.data.toJSON() as any); // ! unsure typing
         }
       })
       .on('push.triggers', (trigger: Trigger) => {
         this.Triggers.set(trigger.name, trigger);
-        Object.entries(trigger.triggerConfig).forEach((value) => value[1].activated ? this.regRTS(`triggers.${value[0]}`) : null);
+        Object.entries(trigger.triggerConfig).forEach((value) => (value[1].activated ? this.regRTS(`triggers.${value[0]}`) : null));
       })
       .on('push.buttons', (button: ButtonComponent) => {
         this.Buttons.set(button.name, button);
@@ -748,7 +769,7 @@ class Bot extends djs.Client {
       .on('push.contextMenus', (contextMenu: ContextMenuComponent) => {
         this.ContextMenus.set(contextMenu.name, contextMenu);
         this.regRTS('components.contextMenus');
-        this.interactions.push(contextMenu.data.toJSON() as any);
+        this.interactions.push(contextMenu.data.toJSON() as any); // ! unsure what the type here is meant to be
       })
       .on('push.selectMenus', (selectMenu: SelectMenuComponent) => {
         this.SelectMenus.set(selectMenu.name, selectMenu);
@@ -773,86 +794,91 @@ class Bot extends djs.Client {
         );
         this.regRTS('predefinedMessages');
       });
-    const rds = fs.readdirSync;
+    // ! unsure what the code below even does? It doesn't seem to produce any returned variable even though its mapped around
+    /* const rds = fs.readdirSync;
+    // eslint-disable-next-line no-restricted-syntax
     Array.of(
+      // ! why are so many emitting events?
       this.eventsDir
         ? [
-          this.eventsDir,
-          (event: string) => {
-            this.emit('push.events', event);
-          },
-        ]
+            this.eventsDir,
+            (event: string) => {
+              this.emit('push.events', event);
+            },
+          ]
         : null,
       this.commandsDir
         ? [
-          this.commandsDir,
-          command => {
-            this.emit('push.commands', command);
-          },
-        ]
+            this.commandsDir,
+            (command) => {
+              this.emit('push.commands', command);
+            },
+          ]
         : null,
       this.triggersDir
         ? [
-          this.triggersDir,
-          trigger => {
-            this.emit('push.triggers', trigger);
-          },
-        ]
+            this.triggersDir,
+            (trigger) => {
+              this.emit('push.triggers', trigger);
+            },
+          ]
         : null,
       this.buttonsDir
         ? [
-          this.buttonsDir,
-          button => {
-            this.emit('push.buttons', button);
-          },
-        ]
+            this.buttonsDir,
+            (button) => {
+              this.emit('push.buttons', button);
+            },
+          ]
         : null,
       this.contextMenusDir
         ? [
-          this.contextMenusDir,
-          contextMenu => {
-            this.emit('push.contextMenus', contextMenu);
-          },
-        ]
+            this.contextMenusDir,
+            (contextMenu) => {
+              this.emit('push.contextMenus', contextMenu);
+            },
+          ]
         : null,
       this.selectMenusDir
         ? [
-          this.selectMenusDir,
-          selectMenu => {
-            this.emit('push.selectMenus', selectMenu);
-          },
-        ]
+            this.selectMenusDir,
+            (selectMenu) => {
+              this.emit('push.selectMenus', selectMenu);
+            },
+          ]
         : null,
       this.modalComponentsDir
         ? [
-          this.modalComponentsDir,
-          modal => {
-            this.emit('push.modals', modal);
-          },
-        ]
+            this.modalComponentsDir,
+            (modal) => {
+              this.emit('push.modals', modal);
+            },
+          ]
         : null,
       this.predefinedMessagesDir
         ? [
-          this.predefinedMessagesDir,
-          message => {
-            this.emit('push.predefinedMessages', message);
-          },
-        ]
+            this.predefinedMessagesDir,
+            (message) => {
+              this.emit('push.predefinedMessages', message);
+            },
+          ]
         : null
     )
       .filter((s) => s !== null && typeof s[0] !== 'function')
       .forEach((s) => rds(s![0] as string)
-        .filter((f) => f !== 'example.js')
-        .map((f) => require(`${s![0] as string}/${f}`))
-        .forEach(s![1] as (arg0: any) => void));
+          .filter((f) => f !== 'example.js')
+          .map((f) => require(`${s![0] as string}/${f}`))
+          .forEach(s![1] as (arg0: any) => void)
+      ); */
     this.emit('push.events', {
       event: 'ready',
       execute: () => {
         // eslint-disable-next-line no-console
         console.log(
           CT.template(
+            // eslint-disable-next-line no-restricted-syntax
             Array.of(
-              `ly logged in as {red ${this.user!.username}}!`,
+              `{bold [READY]} Currently logged in as {red ${this.user!.username}}!`,
               ` Ping: {rgb(255,127,0) ${Math.max(this.ws.ping, 0)} ms}`,
               ` Guilds: {yellow ${this.guilds.cache.size}}`,
               ` Users: {green ${this.users.cache.size}}`,
@@ -863,9 +889,7 @@ class Bot extends djs.Client {
               ` Triggers: {grey ${this.Triggers.size}}`,
               ` Pre-defined messages: {cyan ${this.PredefinedMessages.size}}`,
               ` Statuses selection size: {rgb(0,255,255) ${this.Statuses.size}}`
-            )
-              .map((m) => `{bold [READY]} Current${m}`)
-              .join('\n')
+            ).join('\n')
           )
         );
         const status = this.Statuses.random();
@@ -888,22 +912,25 @@ class Bot extends djs.Client {
       ram: {
         botOnly: {
           rawValue: (rawBRam > 1024 ? rawBRam / 1024 : rawBRam).toFixed(2),
-          percentage: (botRam / os.totalmem() * 1e2).toFixed(2),
+          percentage: ((botRam / os.totalmem()) * 1e2).toFixed(2),
           unit: botRam / 1024 ** 3 > 1 ? 'GB' : 'MB',
         },
         global: {
           rawValue: (rawGRam > 1024 ? rawGRam / 1024 : rawGRam).toFixed(2),
-          percentage: (globalRam / os.totalmem() * 1e2).toFixed(2),
+          percentage: ((globalRam / os.totalmem()) * 1e2).toFixed(2),
           unit: globalRam / 1024 ** 3 > 1 ? 'GB' : 'MB',
         },
       },
     };
   };
-  gev = (name: string) => Object.assign(this.runtimeStats.events.eventExecution, {
-    [`${name}`]: new UtilsClass.RuntimeStatistics(),
-  });
+  noClueWhatThisIsUsedToBeGev = (name: string) =>
+    Object.assign(this.runtimeStats.events.eventExecution, {
+      [`${name}`]: new UtilsClass.RuntimeStatistics(),
+    });
   regRTS = (key: string) => (eval(`this.runtimeStats.${key}`) as RuntimeStatistics).incrementRegistered();
+  // ! remove exec from production code
   bumpRTS = (key: string) => (eval(`this.runtimeStats.${key}`) as RuntimeStatistics).incrementExecuted();
+  // ! remove exec from production code
   setBranding = (branding: djs.EmbedData) => Object.assign(this.branding, branding);
 
   start() {
@@ -918,6 +945,3 @@ export default {
   Client: Bot,
   Utils: UtilsClass,
 };
-
-export const Client = Bot;
-export const Utils = UtilsClass;
