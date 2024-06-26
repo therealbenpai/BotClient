@@ -26,7 +26,7 @@ class BaseComponent<Interaction> {
   /** The Description of the Component (What it Does, What It's Purpose Is, etc.) */
   info: ComponentInfo;
   /** The Type of Component that this is */
-  data: ComponentType;
+  data: ComponentType; // todo change into generic
   execute: (client: Bot, interaction: Interaction) => Promise<void>;
 
   /** The Function that is called when the Component is interacted with */
@@ -597,7 +597,15 @@ class Bot extends djs.Client {
   predefinedMessagesDir: string | undefined;
   selectMenusDir: string | undefined;
   triggersDir: string | undefined;
-  interactions: (djs.SlashCommandBuilder | djs.ContextMenuCommandBuilder)[];
+  interactions: (
+    | ComponentType
+    | djs.SlashCommandBuilder
+    | djs.ContextMenuCommandBuilder
+    | djs.ButtonBuilder
+    | djs.StringSelectMenuBuilder
+  )[];
+  // todo: readd line below
+  // (djs.SlashCommandBuilder | djs.ContextMenuCommandBuilder | djs.ButtonBuilder | djs.StringSelectMenuBuilder)[];
   runtimeStats: {
     commands: {
       text: RuntimeStatistics;
@@ -749,7 +757,7 @@ class Bot extends djs.Client {
         }
         if (command.type.slash) {
           this.regRTS('commands.slash');
-          this.interactions.push(command.data.toJSON() as any); // ! unsure typing
+          this.interactions.push(command.data);
         }
       })
       .on('push.triggers', (trigger: Trigger) => {
@@ -763,7 +771,7 @@ class Bot extends djs.Client {
       .on('push.contextMenus', (contextMenu: ContextMenuComponent) => {
         this.ContextMenus.set(contextMenu.name, contextMenu);
         this.regRTS('components.contextMenus');
-        this.interactions.push(contextMenu.data.toJSON() as any); // ! unsure what the type here is meant to be
+        this.interactions.push(contextMenu.data); // ! unsure what the type here is meant to be
       })
       .on('push.selectMenus', (selectMenu: SelectMenuComponent) => {
         this.SelectMenus.set(selectMenu.name, selectMenu);

@@ -11,9 +11,9 @@
     "docs": "npx typedoc --options typedoc.config.cjs",
     "compile": "npx tsc",
     "jit": "npx tsc --watch",
-    "update": "eslint --fix && npm run docs",
-    "lint": "eslint --fix .",
-    "lint-nofix": "eslint ."
+    "update": "eslint --fix src/**/*.ts && npm run docs",
+    "lint": "eslint --fix src/**/*.ts",
+    "lint-nofix": "eslint src/**/*.ts"
   },
   "keywords": [
     "discord.js",
