@@ -286,8 +286,7 @@ class TimeManagement {
   /** Converts a Date or number to a timestamp */
   static timestamp = (value: Date | number) => new Intl.DateTimeFormat(this.timeFormat.locale, this.timeFormat.options).format(value);
   /** Converts a string to milliseconds */
-  static stringToMilliseconds = (timeString: string) =>
-    timeString
+  static stringToMilliseconds = (timeString: string) => timeString
       .split(' ')
       .map((value: string) => this.stringToMS(value, value.slice(-1)))
       // eslint-disable-next-line id-length
@@ -734,7 +733,7 @@ class Bot extends djs.Client {
     this.RESTClient = new REST({ version: '10' }).setToken(this.botToken);
     this.on('push.events', (event: Event) => {
       this.regRTS('events');
-      this.noClueWhatThisIsUsedToBeGev(event.event);
+      this.generateEvent(event.event);
       this.Events.set(event.event, event);
       // ! fix linting rule below
       // eslint-disable-next-line ts/no-misused-promises
@@ -918,8 +917,7 @@ class Bot extends djs.Client {
       },
     };
   };
-  noClueWhatThisIsUsedToBeGev = (name: string) =>
-    Object.assign(this.runtimeStats.events.eventExecution, {
+  generateEvent = (name: string) => Object.assign(this.runtimeStats.events.eventExecution, {
       [`${name}`]: new UtilsClass.RuntimeStatistics(),
     });
   regRTS = (key: string) => (eval(`this.runtimeStats.${key}`) as RuntimeStatistics).incrementRegistered();
