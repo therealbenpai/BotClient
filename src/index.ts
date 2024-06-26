@@ -20,23 +20,18 @@ class TriggerBase {
   }
 }
 
-class BaseComponent {
+class BaseComponent<Interaction> {
   /** The Identifier and Name of the Component */
   name: string;
   /** The Description of the Component (What it Does, What It's Purpose Is, etc.) */
   info: ComponentInfo;
   /** The Type of Component that this is */
   data: ComponentType;
-  execute: (client: Bot, interaction: djs.BaseInteraction) => Promise<void>;
+  execute: (client: Bot, interaction: Interaction) => Promise<void>;
 
   /** The Function that is called when the Component is interacted with */
 
-  constructor(
-    name: string,
-    info: ComponentInfo,
-    data: ComponentType,
-    handler: (client: Bot, interaction: djs.BaseInteraction) => Promise<void>
-  ) {
+  constructor(name: string, info: ComponentInfo, data: ComponentType, handler: (client: Bot, interaction: Interaction) => Promise<void>) {
     this.name = name;
     this.info = info;
     this.data = data;
@@ -190,12 +185,12 @@ class CommandInfo {
 /**
  * A class that represents a Button component
  */
-class ButtonComponent extends BaseComponent {
+class ButtonComponent extends BaseComponent<djs.ButtonInteraction<djs.CacheType>> {
   constructor(
     name: string,
     info: ComponentInfo,
     data: djs.ButtonBuilder,
-    handler: (client: Bot, interaction: djs.BaseInteraction<djs.CacheType>) => Promise<void>
+    handler: (client: Bot, interaction: djs.ButtonInteraction<djs.CacheType>) => Promise<void>
   ) {
     super(name, info, data, handler);
   }
@@ -204,12 +199,12 @@ class ButtonComponent extends BaseComponent {
 /**
  * A class that represents a Context Menu component
  */
-class ContextMenuComponent extends BaseComponent {
+class ContextMenuComponent extends BaseComponent<djs.ContextMenuCommandInteraction> {
   constructor(
     name: string,
     info: ComponentInfo,
     data: djs.ContextMenuCommandBuilder,
-    handler: (client: Bot, interaction: djs.BaseInteraction<djs.CacheType>) => Promise<void>
+    handler: (client: Bot, interaction: djs.ContextMenuCommandInteraction) => Promise<void>
   ) {
     super(name, info, data, handler);
   }
@@ -218,12 +213,12 @@ class ContextMenuComponent extends BaseComponent {
 /**
  * A class that represents a Modal component
  */
-class ModalComponent extends BaseComponent {
+class ModalComponent extends BaseComponent<djs.ModalSubmitInteraction> {
   constructor(
     name: string,
     info: ComponentInfo,
     data: djs.ModalBuilder,
-    handler: (client: Bot, interaction: djs.BaseInteraction<djs.CacheType>) => Promise<void>
+    handler: (client: Bot, interaction: djs.ModalSubmitInteraction) => Promise<void>
   ) {
     super(name, info, data, handler);
   }
@@ -232,12 +227,12 @@ class ModalComponent extends BaseComponent {
 /**
  * A class that represents a Select Menu component
  */
-class SelectMenuComponent extends BaseComponent {
+class SelectMenuComponent extends BaseComponent<djs.SelectMenuInteraction> {
   constructor(
     name: string,
     info: ComponentInfo,
     data: djs.SelectMenuBuilder,
-    handler: (client: Bot, interaction: djs.BaseInteraction<djs.CacheType>) => Promise<void>
+    handler: (client: Bot, interaction: djs.SelectMenuInteraction) => Promise<void>
   ) {
     super(name, info, data, handler);
   }
