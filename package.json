@@ -39,7 +39,7 @@
     "@types/node": "^20.12.9",
     "@typescript-eslint/eslint-plugin": "^7.8.0",
     "@typescript-eslint/parser": "^7.8.0",
-    "eslint-plugin-jsdoc": "^48.2.3",
+    "eslint-plugin-jsdoc": "^50.2.4",
     "typedoc-material-theme": "^1.0.2",
     "eslint": "^8.57.0",
     "globals": "^15.1.0",
