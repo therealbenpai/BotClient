@@ -26,11 +26,9 @@
   "author": "Benjamin",
   "license": "GPL-3.0",
   "dependencies": {
-    "chalk-template": "^1.1.0",
     "discord-api-types": "^0.37.37",
     "discord.js": "^14.8.0",
-    "dotenv": "^16.0.3",
-    "fuse.js": "^7.0.0"
+    "dotenv": "^16.0.3"
   },
   "devDependencies": {
     "typescript": "^5.4.5",
@@ -39,13 +37,8 @@
     "@typescript-eslint/eslint-plugin": "^7.8.0",
     "@typescript-eslint/parser": "^7.8.0",
     "eslint-plugin-jsdoc": "^48.2.3",
-    "typedoc-material-theme": "^1.0.2",
     "eslint": "^8.57.0",
     "globals": "^15.1.0",
-    "typedoc": "^0.25.13",
-    "typedoc-plugin-extras": "^3.0.0",
-    "typedoc-plugin-mdn-links": "^3.1.0",
-    "typedoc-plugin-rename-defaults": "^0.7.0",
     "typescript-eslint": "^7.8.0"
   },
   "repository": {
