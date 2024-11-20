@@ -14,15 +14,8 @@
         "strict": true,
         "moduleDetection": "auto"
     },
-    "exclude": [
-        "node_modules",
-        "node_modules/**",
-        "@types",
-        "@types/**",
-        "**/node_modules",
-        "**/node_modules/**",
-        "**/@types",
-        "**/@types/**"
+    "include": [
+        "src"
     ],
     "compileOnSave": true
 }

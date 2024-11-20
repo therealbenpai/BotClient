@@ -17,19 +17,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'pnpm'
       - name: Publish to NPM
         run: |
-          pnpm install
-          pnpm compile
+          npm install
+          npm run compile
           echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> ~/.npmrc
           echo "//npm.pkg.github.com/:_authToken=${GH_TOKEN}" >> ~/.npmrc
           npm publish --provenance --registry https://registry.npmjs.org/

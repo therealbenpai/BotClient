@@ -3,6 +3,7 @@ import { Routes } from 'discord-api-types/v10';
 import { REST } from '@discordjs/rest';
 import * as fs from 'fs';
 import * as os from 'os';
+import process from 'process';
 
 type ComponentType = djs.ButtonBuilder | djs.ContextMenuCommandBuilder | djs.SelectMenuBuilder | djs.ModalBuilder;
 
@@ -118,7 +119,7 @@ class TriggerUser extends TriggerBase {
  */
 class CommandRestrictions {
 	/** The permission that is required to execute the command */
-	perm: djs.PermissionFlags;
+	perm: djs.PermissionFlags | undefined;
 	/** The types of channels the command can be executed in */
 	channels: djs.ChannelType[];
 	/** The IDs of the roles that can execute the command */
@@ -127,8 +128,8 @@ class CommandRestrictions {
 	users: string[];
 	/** Whether or not the command can be executed in DMs */
 	dms: boolean;
-	constructor(data: { perm: bigint | undefined, channels: djs.ChannelType[] | undefined, roles: string[] | undefined, users: string[] | undefined, dms: boolean | undefined }) {
-		this.perm = data.perm as unknown as djs.PermissionFlags;
+	constructor(data: { perm?: djs.PermissionFlags, channels?: djs.ChannelType[], roles?: string[], users?: string[], dms?: boolean }) {
+		this.perm = data?.perm;
 		this.channels = data?.channels ?? [];
 		this.roles = data?.roles ?? [];
 		this.users = data?.users ?? [];
@@ -437,7 +438,7 @@ class Command {
 	/** The information about the command */
 	info: CommandInfo;
 	/** The permissions required to execute the command */
-	requiredPerm: djs.PermissionFlags;
+	requiredPerm: djs.PermissionFlags | undefined;
 	/** The channels that the command can be executed in */
 	channelLimits: djs.ChannelType[];
 	/** The roles that can execute the command */
@@ -499,8 +500,8 @@ class Message {
 	/** The display name of the message */
 	displayName: string;
 	/** The function that is called when the message is called */
-	// @ts-expect-error
-	async getValue(client: Bot): Promise<djs.APIMessage> { }
+	//@ts-expect-error
+	async getValue(client: Bot): Promise<djs.APIMessage> {}
 	constructor(name: string, displayName: string) {
 		this.name = name;
 		this.displayName = displayName;
@@ -785,7 +786,7 @@ class Bot extends djs.Client {
 			this.predefinedMessagesDir ? [this.predefinedMessagesDir, message => { this.emit('push.predefinedMessages', message) }] : null,
 		)
 			.filter(s => s !== null && typeof s[0] !== "function")
-			.forEach(s => rds(s![0] as string).filter(f => f !== 'example.js').map(f => require(`${s![0] as string}/${f}`)).forEach(s![1] as (arg0: any) => void));
+			.forEach(s => rds(s![0] as string).filter(f => f !== 'example.js').map((f: any) => require(`${s![0] as string}/${f}`)).forEach(s![1] as (arg0: any) => void));
 		this.emit('push.events', {
 			event: 'ready',
 			execute: () => {

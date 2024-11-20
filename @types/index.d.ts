@@ -94,7 +94,7 @@ declare class TriggerUser extends TriggerBase {
  */
 declare class CommandRestrictions {
     /** The permission that is required to execute the command */
-    perm: djs.PermissionFlags;
+    perm: djs.PermissionFlags | undefined;
     /** The types of channels the command can be executed in */
     channels: djs.ChannelType[];
     /** The IDs of the roles that can execute the command */
@@ -104,11 +104,11 @@ declare class CommandRestrictions {
     /** Whether or not the command can be executed in DMs */
     dms: boolean;
     constructor(data: {
-        perm: bigint | undefined;
-        channels: djs.ChannelType[] | undefined;
-        roles: string[] | undefined;
-        users: string[] | undefined;
-        dms: boolean | undefined;
+        perm?: djs.PermissionFlags;
+        channels?: djs.ChannelType[];
+        roles?: string[];
+        users?: string[];
+        dms?: boolean;
     });
 }
 /**
@@ -377,7 +377,7 @@ declare class Command {
     /** The information about the command */
     info: CommandInfo;
     /** The permissions required to execute the command */
-    requiredPerm: djs.PermissionFlags;
+    requiredPerm: djs.PermissionFlags | undefined;
     /** The channels that the command can be executed in */
     channelLimits: djs.ChannelType[];
     /** The roles that can execute the command */
