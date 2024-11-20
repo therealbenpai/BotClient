@@ -174,6 +174,8 @@ class CommandInfo {
 	}
 };
 
+type ClientInteraction<T extends djs.BaseInteraction | djs.Message> = (client: Bot, interaction: T) => void
+
 /**
  * A class that represents a Button component
  */
@@ -181,7 +183,7 @@ class ButtonComponent extends BaseComponent {
 	constructor(name: string, info: ComponentInfo, data: djs.ButtonBuilder) {
 		super(name, info, data);
 	}
-	setExecute = (handler: (client: Bot, interaction: djs.ButtonInteraction) => void) => Object.assign(this, { execute: handler });
+	setExecute = (handler: ClientInteraction<djs.ButtonInteraction>) => Object.assign(this, { execute: handler });
 };
 
 /**
@@ -191,7 +193,7 @@ class ContextMenuComponent extends BaseComponent {
 	constructor(name: string, info: ComponentInfo, data: djs.ContextMenuCommandBuilder) {
 		super(name, info, data);
 	}
-	setExecute = (handler: (client: Bot, interaction: djs.ContextMenuCommandInteraction) => void) => Object.assign(this, { execute: handler });
+	setExecute = (handler: ClientInteraction<djs.ContextMenuCommandInteraction>) => Object.assign(this, { execute: handler });
 };
 
 /**
@@ -201,7 +203,7 @@ class ModalComponent extends BaseComponent {
 	constructor(name: string, info: ComponentInfo, data: djs.ModalBuilder) {
 		super(name, info, data);
 	}
-	setExecute = (handler: (client: Bot, interaction: djs.ModalSubmitInteraction) => void) => Object.assign(this, { execute: handler });
+	setExecute = (handler: ClientInteraction<djs.ModalSubmitInteraction>) => Object.assign(this, { execute: handler });
 };
 
 /**
@@ -211,7 +213,7 @@ class SelectMenuComponent extends BaseComponent {
 	constructor(name: string, info: ComponentInfo, data: djs.SelectMenuBuilder) {
 		super(name, info, data);
 	}
-	setExecute = (handler: (client: Bot, interaction: djs.SelectMenuInteraction) => void) => Object.assign(this, { execute: handler });
+	setExecute = (handler: ClientInteraction<djs.SelectMenuInteraction>) => Object.assign(this, { execute: handler });
 };
 
 /**
@@ -417,7 +419,7 @@ class Trigger {
 	/** Set whether or not the trigger is disabled */
 	setGlobalDisable = (newValue: Boolean) => Object.assign(this, { globalDisable: newValue });
 	/** Set the function that is called when the trigger is activated */
-	setExecute = (handler: (client: Bot, message: djs.Message) => void) => Object.assign(this, { execute: handler });
+	setExecute = (handler: ClientInteraction<djs.Message>) => Object.assign(this, { execute: handler });
 	/** The class that represents the execution conditions dealing with messages for a trigger */
 	static Message = TriggerMessage;
 	/** The class that represents the execution conditions dealing with channels for a trigger */
@@ -481,11 +483,11 @@ class Command {
 		this.data = data;
 	}
 	/** Set the function that is called when the slash command is executed */
-	setCommand = (handler: (client: Bot, interaction: djs.CommandInteraction) => void) => Object.assign(this, { commandExecute: handler });
+	setCommand = (handler: ClientInteraction<djs.ChatInputCommandInteraction>) => Object.assign(this, { commandExecute: handler });
 	/** Set the function that is called when the text command is executed */
-	setMessage = (handler: (client: Bot, message: djs.Message) => void) => Object.assign(this, { messageExecute: handler });
+	setMessage = (handler: ClientInteraction<djs.Message>) => Object.assign(this, { messageExecute: handler });
 	/** Set the function that is called when the autocomplete action is called */
-	setAutocomplete = (handler: (client: Bot, interaction: djs.AutocompleteInteraction) => void) => Object.assign(this, { autocomplete: handler });
+	setAutocomplete = (handler: ClientInteraction<djs.AutocompleteInteraction>) => Object.assign(this, { autocomplete: handler });
 	/** The class that represents the restrictions that can be placed on a command */
 	static Restrictions = CommandRestrictions;
 	/** The class that contains information about a command */
@@ -579,9 +581,21 @@ class UtilsClass extends General {
 	set RuntimeStatistics(_) { thisSetter(RuntimeStatistics) }
 }
 
+interface BotInitalizationOptions {
+	commandsDir?: string,
+	eventsDir?: string,
+	triggersDir?: string,
+	buttonsDir?: string,
+	selectMenusDir?: string,
+	contextMenusDir?: string,
+	modalComponentsDir?: string,
+	predefinedMessagesDir?: string,
+	removedIntents?: djs.GatewayIntentBits[],
+	removedPartials?: djs.Partials[],
+}
 
 class Bot extends djs.Client {
-	botToken: string;
+	private botToken: string;
 	prefix: string;
 	botId: string;
 	buttonsDir: string | undefined;
@@ -637,10 +651,14 @@ class Bot extends djs.Client {
 	Utils: typeof UtilsClass;
 	branding: djs.EmbedData;
 	RESTClient: REST;
-	constructor(id: string, token: string, prefix: string, options: { commandsDir?: string, eventsDir?: string, triggersDir?: string, buttonsDir?: string, selectMenusDir?: string, contextMenusDir?: string, modalComponentsDir?: string, predefinedMessagesDir?: string }) {
+	constructor(id: string, token: string, prefix: string, options?: BotInitalizationOptions) {
+		const intents = Object.values(djs.GatewayIntentBits) as djs.GatewayIntentBits[];
+		const partials = Object.values(djs.Partials) as djs.Partials[]
+		if (options?.removedIntents) options.removedIntents.forEach(i => intents.splice(intents.indexOf(i), 1));
+		if (options?.removedPartials) options.removedPartials.forEach(p => partials.splice(partials.indexOf(p), 1));
 		super({
-			intents: Object.values(djs.GatewayIntentBits) as djs.GatewayIntentBits[],
-			partials: Object.values(djs.Partials) as djs.Partials[],
+			intents: intents,
+			partials: partials,
 			presence: {
 				activities: [],
 				status: djs.PresenceUpdateStatus.Online,
@@ -649,14 +667,14 @@ class Bot extends djs.Client {
 		this.botId = id;
 		this.prefix = prefix;
 		this.botToken = token;
-		this.commandsDir = options.commandsDir;
-		this.eventsDir = options.eventsDir;
-		this.triggersDir = options.triggersDir;
-		this.buttonsDir = options.buttonsDir;
-		this.selectMenusDir = options.selectMenusDir;
-		this.contextMenusDir = options.contextMenusDir;
-		this.modalComponentsDir = options.modalComponentsDir;
-		this.predefinedMessagesDir = options.predefinedMessagesDir;
+		this.commandsDir = options?.commandsDir;
+		this.eventsDir = options?.eventsDir;
+		this.triggersDir = options?.triggersDir;
+		this.buttonsDir = options?.buttonsDir;
+		this.selectMenusDir = options?.selectMenusDir;
+		this.contextMenusDir = options?.contextMenusDir;
+		this.modalComponentsDir = options?.modalComponentsDir;
+		this.predefinedMessagesDir = options?.predefinedMessagesDir;
 		Object.assign(this, options);
 		this.runtimeStats = {
 			commands: {
@@ -698,8 +716,7 @@ class Bot extends djs.Client {
 		this.Messages = new djs.Collection();
 		this.Triggers = new djs.Collection();
 		this.PredefinedMessages = new djs.Collection();
-		this.Statuses = new djs.Collection()
-			.set(0, { type: djs.ActivityType.Watching, name: 'The Server' }) as djs.Collection<number, djs.ActivityOptions>;
+		this.Statuses = new djs.Collection();
 		this.Utils = UtilsClass;
 		this.branding = {
 			footer: { text: '' },
@@ -773,23 +790,25 @@ class Bot extends djs.Client {
 		this.emit('push.events', {
 			event: 'ready',
 			execute: () => {
-				// eslint-disable-next-line no-console
-				console.log(
-					CT.template(
-						Array.of(
-							`ly logged in as {red ${this.user!.username}}!`,
-							` Ping: {rgb(255,127,0) ${Math.max(this.ws.ping, 0)} ms}`,
-							` Guilds: {yellow ${this.guilds.cache.size}}`,
-							` Users: {green ${this.users.cache.size}}`,
-							` Channels: {blue ${this.channels.cache.size}}`,
-							` Commands: {rgb(180,0,250) ${this.Commands.size}}`,
-							` Components: {rgb(255,100,100) ${this.Modals.size + this.Buttons.size + this.SelectMenus.size + this.ContextMenus.size}}`,
-							` Events: {white ${this.Events.size}}`,
-							` Triggers: {grey ${this.Triggers.size}}`,
-							` Pre-defined messages: {cyan ${this.PredefinedMessages.size}}`,
-							` Statuses selection size: {rgb(0,255,255) ${this.Statuses.size}}`,
-						).map(m => `{bold [READY]} Current${m}`).join('\n')
-					));
+				if (process.env.NOLOG?.toLocaleLowerCase() !== 'true') {
+					// eslint-disable-next-line no-console
+					console.log(
+						CT.template(
+							Array.of(
+								`ly logged in as {red ${this.user!.username}}!`,
+								` Ping: {rgb(255,127,0) ${Math.max(this.ws.ping, 0)} ms}`,
+								` Guilds: {yellow ${this.guilds.cache.size}}`,
+								` Users: {green ${this.users.cache.size}}`,
+								` Channels: {blue ${this.channels.cache.size}}`,
+								` Commands: {rgb(180,0,250) ${this.Commands.size}}`,
+								` Components: {rgb(255,100,100) ${this.Modals.size + this.Buttons.size + this.SelectMenus.size + this.ContextMenus.size}}`,
+								` Events: {white ${this.Events.size}}`,
+								` Triggers: {grey ${this.Triggers.size}}`,
+								` Pre-defined messages: {cyan ${this.PredefinedMessages.size}}`,
+								` Statuses selection size: {rgb(0,255,255) ${this.Statuses.size}}`,
+							).map(m => `{bold [READY]} Current${m}`).join('\n')
+						));
+				}
 				const status = this.Statuses.random()
 				if (!status) return;
 				setInterval(() => this.user!.setPresence({ activities: [status] }), 15e3)
@@ -834,5 +853,6 @@ export default {
 	Utils: UtilsClass,
 }
 
-export const Client = Bot;
-export const Utils = UtilsClass;
+export const
+	Client = Bot,
+	Utils = UtilsClass;

@@ -147,13 +147,14 @@ declare class CommandInfo {
         aliases: string[];
     });
 }
+type ClientInteraction<T extends djs.BaseInteraction | djs.Message> = (client: Bot, interaction: T) => void;
 /**
  * A class that represents a Button component
  */
 declare class ButtonComponent extends BaseComponent {
     constructor(name: string, info: ComponentInfo, data: djs.ButtonBuilder);
-    setExecute: (handler: (client: Bot, interaction: djs.ButtonInteraction) => void) => this & {
-        execute: (client: Bot, interaction: djs.ButtonInteraction) => void;
+    setExecute: (handler: ClientInteraction<djs.ButtonInteraction>) => this & {
+        execute: ClientInteraction<djs.ButtonInteraction<djs.CacheType>>;
     };
 }
 /**
@@ -161,8 +162,8 @@ declare class ButtonComponent extends BaseComponent {
  */
 declare class ContextMenuComponent extends BaseComponent {
     constructor(name: string, info: ComponentInfo, data: djs.ContextMenuCommandBuilder);
-    setExecute: (handler: (client: Bot, interaction: djs.ContextMenuCommandInteraction) => void) => this & {
-        execute: (client: Bot, interaction: djs.ContextMenuCommandInteraction) => void;
+    setExecute: (handler: ClientInteraction<djs.ContextMenuCommandInteraction>) => this & {
+        execute: ClientInteraction<djs.ContextMenuCommandInteraction<djs.CacheType>>;
     };
 }
 /**
@@ -170,8 +171,8 @@ declare class ContextMenuComponent extends BaseComponent {
  */
 declare class ModalComponent extends BaseComponent {
     constructor(name: string, info: ComponentInfo, data: djs.ModalBuilder);
-    setExecute: (handler: (client: Bot, interaction: djs.ModalSubmitInteraction) => void) => this & {
-        execute: (client: Bot, interaction: djs.ModalSubmitInteraction) => void;
+    setExecute: (handler: ClientInteraction<djs.ModalSubmitInteraction>) => this & {
+        execute: ClientInteraction<djs.ModalSubmitInteraction<djs.CacheType>>;
     };
 }
 /**
@@ -179,8 +180,8 @@ declare class ModalComponent extends BaseComponent {
  */
 declare class SelectMenuComponent extends BaseComponent {
     constructor(name: string, info: ComponentInfo, data: djs.SelectMenuBuilder);
-    setExecute: (handler: (client: Bot, interaction: djs.SelectMenuInteraction) => void) => this & {
-        execute: (client: Bot, interaction: djs.SelectMenuInteraction) => void;
+    setExecute: (handler: ClientInteraction<djs.SelectMenuInteraction>) => this & {
+        execute: ClientInteraction<djs.StringSelectMenuInteraction<djs.CacheType>>;
     };
 }
 /**
@@ -356,8 +357,8 @@ declare class Trigger {
         globalDisable: Boolean;
     };
     /** Set the function that is called when the trigger is activated */
-    setExecute: (handler: (client: Bot, message: djs.Message) => void) => this & {
-        execute: (client: Bot, message: djs.Message) => void;
+    setExecute: (handler: ClientInteraction<djs.Message>) => this & {
+        execute: ClientInteraction<djs.Message<boolean>>;
     };
     /** The class that represents the execution conditions dealing with messages for a trigger */
     static Message: typeof TriggerMessage;
@@ -405,16 +406,16 @@ declare class Command {
         slash: boolean;
     }, data: djs.SlashCommandBuilder);
     /** Set the function that is called when the slash command is executed */
-    setCommand: (handler: (client: Bot, interaction: djs.CommandInteraction) => void) => this & {
-        commandExecute: (client: Bot, interaction: djs.CommandInteraction) => void;
+    setCommand: (handler: ClientInteraction<djs.ChatInputCommandInteraction>) => this & {
+        commandExecute: ClientInteraction<djs.ChatInputCommandInteraction<djs.CacheType>>;
     };
     /** Set the function that is called when the text command is executed */
-    setMessage: (handler: (client: Bot, message: djs.Message) => void) => this & {
-        messageExecute: (client: Bot, message: djs.Message) => void;
+    setMessage: (handler: ClientInteraction<djs.Message>) => this & {
+        messageExecute: ClientInteraction<djs.Message<boolean>>;
     };
     /** Set the function that is called when the autocomplete action is called */
-    setAutocomplete: (handler: (client: Bot, interaction: djs.AutocompleteInteraction) => void) => this & {
-        autocomplete: (client: Bot, interaction: djs.AutocompleteInteraction) => void;
+    setAutocomplete: (handler: ClientInteraction<djs.AutocompleteInteraction>) => this & {
+        autocomplete: ClientInteraction<djs.AutocompleteInteraction<djs.CacheType>>;
     };
     /** The class that represents the restrictions that can be placed on a command */
     static Restrictions: typeof CommandRestrictions;
@@ -489,8 +490,20 @@ declare class UtilsClass extends General {
     get RuntimeStatistics(): typeof RuntimeStatistics;
     set RuntimeStatistics(_: typeof RuntimeStatistics);
 }
+interface BotInitalizationOptions {
+    commandsDir?: string;
+    eventsDir?: string;
+    triggersDir?: string;
+    buttonsDir?: string;
+    selectMenusDir?: string;
+    contextMenusDir?: string;
+    modalComponentsDir?: string;
+    predefinedMessagesDir?: string;
+    removedIntents?: djs.GatewayIntentBits[];
+    removedPartials?: djs.Partials[];
+}
 declare class Bot extends djs.Client {
-    botToken: string;
+    private botToken;
     prefix: string;
     botId: string;
     buttonsDir: string | undefined;
@@ -548,16 +561,7 @@ declare class Bot extends djs.Client {
     Utils: typeof UtilsClass;
     branding: djs.EmbedData;
     RESTClient: REST;
-    constructor(id: string, token: string, prefix: string, options: {
-        commandsDir?: string;
-        eventsDir?: string;
-        triggersDir?: string;
-        buttonsDir?: string;
-        selectMenusDir?: string;
-        contextMenusDir?: string;
-        modalComponentsDir?: string;
-        predefinedMessagesDir?: string;
-    });
+    constructor(id: string, token: string, prefix: string, options?: BotInitalizationOptions);
     embed: () => djs.EmbedBuilder;
     stats: () => {
         ping: number;
@@ -588,5 +592,4 @@ declare const _default: {
     Utils: typeof UtilsClass;
 };
 export default _default;
-export declare const Client: typeof Bot;
-export declare const Utils: typeof UtilsClass;
+export declare const Client: typeof Bot, Utils: typeof UtilsClass;

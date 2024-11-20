@@ -1,9 +1,35 @@
-import * as djs from 'discord.js';
-import { Routes } from 'discord-api-types/v10';
-import { REST } from '@discordjs/rest';
-import * as fs from 'fs';
-import * as os from 'os';
-import * as CT from 'chalk-template';
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Utils = exports.Client = void 0;
+const djs = __importStar(require("discord.js"));
+const v10_1 = require("discord-api-types/v10");
+const rest_1 = require("@discordjs/rest");
+const fs = __importStar(require("fs"));
+const os = __importStar(require("os"));
+const CT = __importStar(require("chalk-template"));
 class General {
     static Reduce = class {
         /** Adds two numbers together */
@@ -578,9 +604,15 @@ class Bot extends djs.Client {
     branding;
     RESTClient;
     constructor(id, token, prefix, options) {
+        const intents = Object.values(djs.GatewayIntentBits);
+        const partials = Object.values(djs.Partials);
+        if (options?.removedIntents)
+            options.removedIntents.forEach(i => intents.splice(intents.indexOf(i), 1));
+        if (options?.removedPartials)
+            options.removedPartials.forEach(p => partials.splice(partials.indexOf(p), 1));
         super({
-            intents: Object.values(djs.GatewayIntentBits),
-            partials: Object.values(djs.Partials),
+            intents: intents,
+            partials: partials,
             presence: {
                 activities: [],
                 status: djs.PresenceUpdateStatus.Online,
@@ -589,14 +621,14 @@ class Bot extends djs.Client {
         this.botId = id;
         this.prefix = prefix;
         this.botToken = token;
-        this.commandsDir = options.commandsDir;
-        this.eventsDir = options.eventsDir;
-        this.triggersDir = options.triggersDir;
-        this.buttonsDir = options.buttonsDir;
-        this.selectMenusDir = options.selectMenusDir;
-        this.contextMenusDir = options.contextMenusDir;
-        this.modalComponentsDir = options.modalComponentsDir;
-        this.predefinedMessagesDir = options.predefinedMessagesDir;
+        this.commandsDir = options?.commandsDir;
+        this.eventsDir = options?.eventsDir;
+        this.triggersDir = options?.triggersDir;
+        this.buttonsDir = options?.buttonsDir;
+        this.selectMenusDir = options?.selectMenusDir;
+        this.contextMenusDir = options?.contextMenusDir;
+        this.modalComponentsDir = options?.modalComponentsDir;
+        this.predefinedMessagesDir = options?.predefinedMessagesDir;
         Object.assign(this, options);
         this.runtimeStats = {
             commands: {
@@ -638,15 +670,14 @@ class Bot extends djs.Client {
         this.Messages = new djs.Collection();
         this.Triggers = new djs.Collection();
         this.PredefinedMessages = new djs.Collection();
-        this.Statuses = new djs.Collection()
-            .set(0, { type: djs.ActivityType.Watching, name: 'The Server' });
+        this.Statuses = new djs.Collection();
         this.Utils = UtilsClass;
         this.branding = {
             footer: { text: '' },
             color: 0x2F3136,
         };
         this.interactions = [];
-        this.RESTClient = new REST({ version: '10' }).setToken(this.botToken);
+        this.RESTClient = new rest_1.REST({ version: '10' }).setToken(this.botToken);
         this
             .on('push.events', (event) => {
             this.regRTS('events');
@@ -705,8 +736,10 @@ class Bot extends djs.Client {
         this.emit('push.events', {
             event: 'ready',
             execute: () => {
-                // eslint-disable-next-line no-console
-                console.log(CT.template(Array.of(`ly logged in as {red ${this.user.username}}!`, ` Ping: {rgb(255,127,0) ${Math.max(this.ws.ping, 0)} ms}`, ` Guilds: {yellow ${this.guilds.cache.size}}`, ` Users: {green ${this.users.cache.size}}`, ` Channels: {blue ${this.channels.cache.size}}`, ` Commands: {rgb(180,0,250) ${this.Commands.size}}`, ` Components: {rgb(255,100,100) ${this.Modals.size + this.Buttons.size + this.SelectMenus.size + this.ContextMenus.size}}`, ` Events: {white ${this.Events.size}}`, ` Triggers: {grey ${this.Triggers.size}}`, ` Pre-defined messages: {cyan ${this.PredefinedMessages.size}}`, ` Statuses selection size: {rgb(0,255,255) ${this.Statuses.size}}`).map(m => `{bold [READY]} Current${m}`).join('\n')));
+                if (process.env.NOLOG?.toLocaleLowerCase() !== 'true') {
+                    // eslint-disable-next-line no-console
+                    console.log(CT.template(Array.of(`ly logged in as {red ${this.user.username}}!`, ` Ping: {rgb(255,127,0) ${Math.max(this.ws.ping, 0)} ms}`, ` Guilds: {yellow ${this.guilds.cache.size}}`, ` Users: {green ${this.users.cache.size}}`, ` Channels: {blue ${this.channels.cache.size}}`, ` Commands: {rgb(180,0,250) ${this.Commands.size}}`, ` Components: {rgb(255,100,100) ${this.Modals.size + this.Buttons.size + this.SelectMenus.size + this.ContextMenus.size}}`, ` Events: {white ${this.Events.size}}`, ` Triggers: {grey ${this.Triggers.size}}`, ` Pre-defined messages: {cyan ${this.PredefinedMessages.size}}`, ` Statuses selection size: {rgb(0,255,255) ${this.Statuses.size}}`).map(m => `{bold [READY]} Current${m}`).join('\n')));
+                }
                 const status = this.Statuses.random();
                 if (!status)
                     return;
@@ -742,13 +775,12 @@ class Bot extends djs.Client {
     bumpRTS = (key) => eval(`this.runtimeStats.${key}`).exec();
     setBranding = (branding) => Object.assign(this.branding, branding);
     start() {
-        void this.RESTClient.put(Routes.applicationCommands(this.botId), { body: this.interactions });
+        void this.RESTClient.put(v10_1.Routes.applicationCommands(this.botId), { body: this.interactions });
         void this.login(this.botToken);
     }
 }
-export default {
+exports.default = {
     Client: Bot,
     Utils: UtilsClass,
 };
-export const Client = Bot;
-export const Utils = UtilsClass;
+exports.Client = Bot, exports.Utils = UtilsClass;
