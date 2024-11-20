@@ -790,6 +790,7 @@ class Bot extends djs.Client {
 		this.emit('push.events', {
 			event: 'ready',
 			execute: () => {
+				console.log('Bot is ready');
 				const status = this.Statuses.random()
 				if (!status) return;
 				setInterval(() => this.user!.setPresence({ activities: [status] }), 15e3)
