@@ -771,7 +771,8 @@ class Bot extends djs.Client {
 			})
 			.on('push.predefinedMessages', (message: Message) => {
 				if (!(message instanceof Message)) return;
-				this.PredefinedMessages.set(message.name, Object.assign(message, { getValue: (c: Bot) => { this.bumpRTS('predefinedMessages'); return message.getValue(c); } }));
+				const gv = message.getValue;
+				this.PredefinedMessages.set(message.name, Object.assign(message, { getValue: (c: Bot) => { this.bumpRTS('predefinedMessages'); return gv(c); } }));
 				this.regRTS('predefinedMessages');
 			});
 		const rds = fs.readdirSync;
