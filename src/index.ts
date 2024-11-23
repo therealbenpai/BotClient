@@ -652,13 +652,19 @@ class Bot extends djs.Client {
 	branding: djs.EmbedData;
 	RESTClient: REST;
 	constructor(id: string, token: string, prefix: string, options?: BotInitalizationOptions) {
-		const intents = Object.values(djs.GatewayIntentBits) as djs.GatewayIntentBits[];
-		const partials = Object.values(djs.Partials) as djs.Partials[]
-		if (options?.removedIntents) options.removedIntents.forEach(i => intents.splice(intents.indexOf(i), 1));
-		if (options?.removedPartials) options.removedPartials.forEach(p => partials.splice(partials.indexOf(p), 1));
 		super({
-			intents: intents,
-			partials: partials,
+			intents: Object.values(djs.GatewayIntentBits) // All Intents
+			.filter(value => {
+				if (typeof value === 'string') return false;
+				if (options?.removedIntents) return !options.removedIntents.includes(value);
+				return true;
+			}) as djs.GatewayIntentBits[],
+			partials: Object.values(djs.Partials) // All Partials
+			.filter(value => {
+				if (typeof value === 'string') return false;
+				if (options?.removedPartials) return !options.removedPartials.includes(value);
+				return true;
+			}) as djs.Partials[],
 			presence: {
 				activities: [],
 				status: djs.PresenceUpdateStatus.Online,
