@@ -226,7 +226,7 @@ class Timer {
 		.set('h', ['hour', 60 * 60 * 1000])
 		.set('m', ['minute', 60 * 1000])
 		.set('s', ['second', 1 * 1000]) as Map<string, [string, number]>;
-	static unitsToMS = (amount: string, unit: string) => Number(amount.slice(0, -1)) * (this.unitsToMSDict.get(unit)!.at(1) as number);
+	static unitsToMS = (amount: string, unit: string) => Number(amount.slice(0, -1)) * (this.unitsToMSDict.get(unit)?.at(1) as number);
 	static timeFormatOptions = {
 		locale: 'en-US',
 		options: {
@@ -388,11 +388,6 @@ class UtilsClass {
 	get Time() { return Timer }
 
 	set Time(_) { thisSetter(Timer) }
-
-	get List() { return List }
-
-	set List(_) { thisSetter(List) }
-
 	get RuntimeStatistics() { return RuntimeStatistics }
 
 	set RuntimeStatistics(_) { thisSetter(RuntimeStatistics) }
@@ -590,7 +585,7 @@ class Bot extends djs.Client {
 			this.predefinedMessagesDir ? [this.predefinedMessagesDir, (message) => { this.emit('push.predefinedMessages', message) }] : null,
 		)
 			.filter((element) => element !== null)
-			.forEach((element) => fs.readdirSync(element[0] as string).filter((file) => file !== 'example.js').map((file) => require(`${element[0] as string}/${file}`)).forEach(element[1] as (arg0: any) => void));
+			.forEach((element) => fs.readdirSync(element[0] as string).filter((file) => file !== 'example.js').map((file) => require(`${element[0] as string}/${file}`)));
 		this.emit('push.events', {
 			event: 'ready',
 			execute: () => {
