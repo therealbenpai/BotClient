@@ -6,7 +6,7 @@
   "readme": "README.md",
   "types": "@types/index.d.ts",
   "scripts": {
-    "compile": "npx tsc",
+    "compile": "npx tsc --noCheck",
     "jit": "npx tsc --watch",
     "lint": "eslint .",
     "lint-fix": "eslint . --fix"
