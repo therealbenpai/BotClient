@@ -6,11 +6,8 @@
   "readme": "README.md",
   "types": "@types/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "docs": "npx typedoc --options typedoc.config.cjs",
-    "compile": "npx tsc --noCheck",
+    "compile": "npx tsc",
     "jit": "npx tsc --watch",
-    "update": "eslint --fix && typedoc --options typedoc.config.cjs",
     "lint": "eslint ."
   },
   "keywords": [
