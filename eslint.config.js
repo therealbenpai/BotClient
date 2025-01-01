@@ -48,7 +48,6 @@ export default [
             'key-spacing': 'error',
             'keyword-spacing': 'error',
             'linebreak-style': 'error',
-            'no-console': 'error',
             'prefer-const': 'error',
             'ts/adjacent-overload-signatures': 'error',
             'ts/array-type': 'error',
@@ -107,11 +106,11 @@ export default [
             'object-shorthand': 'warn',
             'prefer-template': 'warn',
             'no-extra-boolean-cast': 'off',
-            'import/extensions': ['error', 'always'],
             'import/consistent-type-specifier-style': ['warn', 'prefer-top-level'],
             'import/no-cycle': 'warn',
             'import/no-self-import': 'error',
             'import/no-useless-path-segments': 'error',
+            'import/no-unresolved': 'warn',
             'no-nested-ternary': 'error',
             'no-var': 'warn',
             'no-useless-return': 'warn',
@@ -132,11 +131,13 @@ export default [
             '@typescript-eslint/no-var-requires': 'off',
             'id-length': ['warn', { min: 3, exceptions: ['_', 'id', 'fs'] }],
             'no-restricted-syntax': [ // Stopping Array.of being used for conditionals, causing significantly more messy code
-                'error',
+                'warn', // genuinely make this error if you can
                 {
                     selector: 'CallExpression[callee.object.name=\'Array\'][callee.property.name=\'of\']',
                     message: 'Don\'t use \'Array.of\'.',
                 },
             ],
+            '@typescript-eslint/no-extraneous-class': 'warn',
+            '@typescript-eslint/no-non-null-assertion': 'warn'
     }
 } ]

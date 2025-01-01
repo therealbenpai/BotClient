@@ -15,10 +15,7 @@ declare class BaseComponent {
     info: ComponentInfo;
     /** The Type of Component that this is */
     data: ComponentType;
-    /** The Function that is called when the Component is interacted with */
-    execute(_client: Bot, _interaction: djs.BaseInteraction): Promise<void>;
     constructor(name: string, info: ComponentInfo, data: ComponentType);
-    setExecute(handler: (client: Bot, interaction: djs.BaseInteraction) => void): void;
 }
 /**
  * A class that represents the exection conditions dealing with messages for a trigger
@@ -50,7 +47,7 @@ declare class TriggerChannel extends TriggerBase {
     constructor(activated: boolean, prefix: boolean, config: {
         id: string[] | null;
         types: djs.ChannelType[] | null;
-    } | undefined);
+    });
 }
 /**
  * A class that represents the execution conditions dealing with roles for a trigger
@@ -60,7 +57,7 @@ declare class TriggerRole extends TriggerBase {
     id: string[];
     constructor(activated: boolean, prefix: boolean, config: {
         id: string[] | null;
-    } | undefined);
+    });
 }
 /**
  * A class that represents the execution conditions dealing with users for a trigger
@@ -70,7 +67,7 @@ declare class TriggerUser extends TriggerBase {
     id: string[];
     constructor(activated: boolean, prefix: boolean, config: {
         id: string[] | null;
-    } | undefined);
+    });
 }
 /**
  * A class that represents the restrictions that can be placed on a command
@@ -135,37 +132,29 @@ type ClientInteraction<T extends djs.BaseInteraction | djs.Message> = (client: B
  * A class that represents a Button component
  */
 declare class ButtonComponent extends BaseComponent {
-    constructor(name: string, info: ComponentInfo, data: djs.ButtonBuilder);
-    setExecute: (handler: ClientInteraction<djs.ButtonInteraction>) => this & {
-        execute: ClientInteraction<djs.ButtonInteraction<djs.CacheType>>;
-    };
+    execute: ClientInteraction<djs.ButtonInteraction>;
+    constructor(name: string, info: ComponentInfo, data: djs.ButtonBuilder, handler: ClientInteraction<djs.ButtonInteraction>);
 }
 /**
  * A class that represents a Context Menu component
  */
 declare class ContextMenuComponent extends BaseComponent {
-    constructor(name: string, info: ComponentInfo, data: djs.ContextMenuCommandBuilder);
-    setExecute: (handler: ClientInteraction<djs.ContextMenuCommandInteraction>) => this & {
-        execute: ClientInteraction<djs.ContextMenuCommandInteraction<djs.CacheType>>;
-    };
+    execute: ClientInteraction<djs.ContextMenuCommandInteraction>;
+    constructor(name: string, info: ComponentInfo, data: djs.ContextMenuCommandBuilder, handler: ClientInteraction<djs.ContextMenuCommandInteraction>);
 }
 /**
  * A class that represents a Modal component
  */
 declare class ModalComponent extends BaseComponent {
-    constructor(name: string, info: ComponentInfo, data: djs.ModalBuilder);
-    setExecute: (handler: ClientInteraction<djs.ModalSubmitInteraction>) => this & {
-        execute: ClientInteraction<djs.ModalSubmitInteraction<djs.CacheType>>;
-    };
+    execute: ClientInteraction<djs.ModalSubmitInteraction>;
+    constructor(name: string, info: ComponentInfo, data: djs.ModalBuilder, handler: ClientInteraction<djs.ModalSubmitInteraction>);
 }
 /**
  * A class that represents a Select Menu component
  */
 declare class SelectMenuComponent extends BaseComponent {
-    constructor(name: string, info: ComponentInfo, data: djs.SelectMenuBuilder);
-    setExecute: (handler: ClientInteraction<djs.SelectMenuInteraction>) => this & {
-        execute: ClientInteraction<djs.StringSelectMenuInteraction<djs.CacheType>>;
-    };
+    execute: ClientInteraction<djs.SelectMenuInteraction>;
+    constructor(name: string, info: ComponentInfo, data: djs.SelectMenuBuilder, handler: ClientInteraction<djs.SelectMenuInteraction>);
 }
 /**
  * A class that contains information about a component
@@ -208,16 +197,6 @@ declare class List {
     static and: (value: string[]) => string;
     /** Joins an array of strings with a comma and a space in the Disjunction style*/
     static or: (value: string[]) => string;
-}
-declare class Event {
-    /** The name of the event */
-    event: string;
-    /** The function that is called when the event is emitted */
-    execute(_client: Bot, ..._args: any): Promise<void>;
-    constructor(event: string);
-    setExecute: (handler: (client: Bot, ...args: any) => void) => this & {
-        execute: (client: Bot, ...args: any) => void;
-    };
 }
 declare class Trigger {
     /** The name of the trigger */

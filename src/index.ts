@@ -25,15 +25,10 @@ class BaseComponent {
 	info: ComponentInfo;
 	/** The Type of Component that this is */
 	data: ComponentType;
-	/** The Function that is called when the Component is interacted with */
-	async execute(_client: Bot, _interaction: djs.BaseInteraction): Promise<void> { }
 	constructor(name: string, info: ComponentInfo, data: ComponentType) {
 		this.name = name;
 		this.info = info;
 		this.data = data;
-	}
-	setExecute(handler: (client: Bot, interaction: djs.BaseInteraction) => void) {
-		Object.assign(this, { execute: handler })
 	}
 }
 
@@ -66,10 +61,10 @@ class TriggerChannel extends TriggerBase {
 	id: string[];
 	/** The types of channels that the trigger can be activated in */
 	types: djs.ChannelType[];
-	constructor(activated: boolean, prefix: boolean, config: { id: string[] | null; types: djs.ChannelType[] | null; } | undefined) {
+	constructor(activated: boolean, prefix: boolean, config: { id: string[] | null; types: djs.ChannelType[] | null; } ) {
 		super(activated, prefix);
-		this.id = config!.id ?? [];
-		this.types = config!.types ?? [];
+		this.id = config.id ?? [];
+		this.types = config.types ?? [];
 	}
 };
 
@@ -79,9 +74,9 @@ class TriggerChannel extends TriggerBase {
 class TriggerRole extends TriggerBase {
 	/** The IDs of the roles that can activate the trigger */
 	id: string[];
-	constructor(activated: boolean, prefix: boolean, config: { id: string[] | null; } | undefined) {
+	constructor(activated: boolean, prefix: boolean, config: { id: string[] | null; }) {
 		super(activated, prefix);
-		this.id = config!.id ?? [];
+		this.id = config.id ?? [];
 	}
 };
 
@@ -91,9 +86,9 @@ class TriggerRole extends TriggerBase {
 class TriggerUser extends TriggerBase {
 	/** The IDs of the users that can activate the trigger */
 	id: string[];
-	constructor(activated: boolean, prefix: boolean, config: { id: string[] | null; } | undefined) {
+	constructor(activated: boolean, prefix: boolean, config: { id: string[] | null; }) {
 		super(activated, prefix);
-		this.id = config!.id ?? [];
+		this.id = config.id ?? [];
 	}
 };
 
@@ -163,40 +158,44 @@ type ClientInteraction<T extends djs.BaseInteraction | djs.Message> = (client: B
  * A class that represents a Button component
  */
 class ButtonComponent extends BaseComponent {
-	constructor(name: string, info: ComponentInfo, data: djs.ButtonBuilder) {
+	execute: ClientInteraction<djs.ButtonInteraction>;
+	constructor(name: string, info: ComponentInfo, data: djs.ButtonBuilder, handler: ClientInteraction<djs.ButtonInteraction>) {
 		super(name, info, data);
+		this.execute = handler;
 	}
-	setExecute = (handler: ClientInteraction<djs.ButtonInteraction>) => Object.assign(this, { execute: handler });
 };
 
 /**
  * A class that represents a Context Menu component
  */
 class ContextMenuComponent extends BaseComponent {
-	constructor(name: string, info: ComponentInfo, data: djs.ContextMenuCommandBuilder) {
+	execute: ClientInteraction<djs.ContextMenuCommandInteraction>;
+	constructor(name: string, info: ComponentInfo, data: djs.ContextMenuCommandBuilder, handler: ClientInteraction<djs.ContextMenuCommandInteraction>) {
 		super(name, info, data);
+		this.execute = handler;
 	}
-	setExecute = (handler: ClientInteraction<djs.ContextMenuCommandInteraction>) => Object.assign(this, { execute: handler });
 };
 
 /**
  * A class that represents a Modal component
  */
 class ModalComponent extends BaseComponent {
-	constructor(name: string, info: ComponentInfo, data: djs.ModalBuilder) {
+	execute: ClientInteraction<djs.ModalSubmitInteraction>;
+	constructor(name: string, info: ComponentInfo, data: djs.ModalBuilder, handler: ClientInteraction<djs.ModalSubmitInteraction>) {
 		super(name, info, data);
+		this.execute = handler;
 	}
-	setExecute = (handler: ClientInteraction<djs.ModalSubmitInteraction>) => Object.assign(this, { execute: handler });
 };
 
 /**
  * A class that represents a Select Menu component
  */
 class SelectMenuComponent extends BaseComponent {
-	constructor(name: string, info: ComponentInfo, data: djs.SelectMenuBuilder) {
+	execute: ClientInteraction<djs.SelectMenuInteraction>;
+	constructor(name: string, info: ComponentInfo, data: djs.SelectMenuBuilder, handler: ClientInteraction<djs.SelectMenuInteraction>) {
 		super(name, info, data);
+		this.execute = handler;
 	}
-	setExecute = (handler: ClientInteraction<djs.SelectMenuInteraction>) => Object.assign(this, { execute: handler });
 };
 
 /**
@@ -258,82 +257,15 @@ class Timer {
 /**
  * A class that contains methods for processing text
  */
-class List {
+const List = {
 	/** Joins an array of strings with a comma and a space */
-	static quick = (v: string[], type: Intl.ListFormatType) => new Intl.ListFormat('en-US', { style: 'long', type }).format(v);
+	quick: (v: string[], type: Intl.ListFormatType) => new Intl.ListFormat('en-US', { style: 'long', type }).format(v),
 	/** Joins an array of strings with a comma and a space in the Conjunction style*/
-	static and = (value: string[]) => this.quick(value, 'conjunction');
+	and: (value: string[]) => new Intl.ListFormat('en-US', { style: 'long', type: 'conjunction'}).format(value),
 	/** Joins an array of strings with a comma and a space in the Disjunction style*/
-	static or = (value: string[]) => this.quick(value, 'disjunction');
+	or: (value: string[]) => new Intl.ListFormat('en-US', { style: 'long', type: 'disjunction'}).format(value),
 }
 
-
-class Markdown {
-	/** Quickly process a string with a prefix and suffix */
-	static quickProcess = (a: string) => (v: string) => `${a}${v}${a}`;
-	/** Process a string into a inline code segment */
-	static inlineCode = this.quickProcess('`');
-	/** Make text appear as bolded */
-	static bold = this.quickProcess('**');
-	/** Make text appear as italicized */
-	static italic = this.quickProcess('*');
-	/** Make text appear as underlined */
-	static underline = this.quickProcess('__');
-	/** Make text appear with a strikethrough */
-	static strikethrough = this.quickProcess('~~');
-	/** Make text appear as a spoiler */
-	static spoiler = this.quickProcess('||');
-	/** Make text appear as a quote */
-	static quote = (value: string) => `> ${value}`;
-	/** Make text appear as a code block */
-	static codeBlock = (stringValue: string, language: string) => `\`\`\`${language || ''}\n${stringValue}\n\`\`\``;
-	/** Make text appear as a block quote */
-	static blockQuote = (value: string) => `>>> ${value}`;
-	/** Make text appear as a formatted url */
-	static link = (text: string, url: string) => `[${text}](${url})`;
-};
-
-class Mentions {
-	/** Quickly process a string with a prefix and suffix */
-	static quickProcess = (prefix: string, value: string, suffix = '') => `<${prefix}${value}${suffix}>`;
-	/** Process a string into a role mention */
-	static role = (id: string) => this.quickProcess('@&', id);
-	/** Process a string into a user mention */
-	static user = (id: string) => this.quickProcess('@', id);
-	/** Process a string into a channel mention */
-	static channel = (id: string) => this.quickProcess('#', id);
-	/** Process a string into an emoji */
-	static emoji = (name: string, id: string) => this.quickProcess(':', name, `:${id} `);
-	/** Process a string into an animated emoji */
-	static animatedEmoji = (name: string, id: string) => this.quickProcess('a:', name, `:${id} `);
-	/** Process a string into a timestamp */
-	static timestamp = (timestamp: string, format = 'f') => this.quickProcess('t:', timestamp, `:${format}`);
-}
-
-
-class DiscordUtils {
-	/**
-	 * A class that contains methods for creating markdown text
-	 */
-	static Markdown = Markdown;
-
-	/**
-	 * A class that contains methods for creating mentions
-	 */
-	static Mentions = Mentions;
-
-}
-
-class Event {
-	/** The name of the event */
-	event: string;
-	/** The function that is called when the event is emitted */
-	async execute(_client: Bot, ..._args: any): Promise<void> { }
-	constructor(event: string) {
-		this.event = event;
-	}
-	setExecute = (handler: (client: Bot, ...args: any) => void) => Object.assign(this, { execute: handler });
-};
 
 class Trigger {
 	/** The name of the trigger */
@@ -612,21 +544,12 @@ class Bot extends djs.Client {
 		this.interactions = [];
 		this.RESTClient = new REST({ version: '10' }).setToken(this.botToken);
 		this
-			.on('push.events', (event: Event) => {
-				this.regRTS('events');
-				this.iDontKnowWhatThisDoes(event.event);
-				this.Events.set(event.event, event);
-				this.on(event.event, async (...args) => {
-					this.bumpRTS(`events.sEE.${event.event}`);
-					await event.execute(this, ...args)
-				});
-			})
 			.on('push.commands', (command: Command) => {
 				this.Commands.set(command.name, command);
 				if (command.type.text) {this.regRTS('commands.text');}
 				if (command.type.slash) {
 					this.regRTS('commands.slash');
-					// @ts-expect-error
+					// @ts-expect-error I have no clue why this is needed, it just is and i dont want to question it
 					this.interactions.push(command.data.toJSON());
 				}
 			})
@@ -645,7 +568,7 @@ class Bot extends djs.Client {
 			.on('push.contextMenus', (contextMenu: ContextMenuComponent) => {
 				this.ContextMenus.set(contextMenu.name, contextMenu);
 				this.regRTS('components.contextMenus');
-				// @ts-expect-error
+				// @ts-expect-error I have no clue why this is needed, it just is and i dont want to question it
 				this.interactions.push(contextMenu.data.toJSON());
 			})
 			.on('push.selectMenus', (selectMenu: SelectMenuComponent) => {
@@ -656,8 +579,7 @@ class Bot extends djs.Client {
 				this.Modals.set(modal.name, modal);
 				this.regRTS('components.modals');
 			});
-		const rds = fs.readdirSync;
-		Array.of(
+		Array.of( // wtf
 			this.eventsDir ? [this.eventsDir, (event: string) => { this.emit('push.events', event) }] : null,
 			this.commandsDir ? [this.commandsDir, (command) => { this.emit('push.commands', command) }] : null,
 			this.triggersDir ? [this.triggersDir, (trigger) => { this.emit('push.triggers', trigger) }] : null,
@@ -667,8 +589,8 @@ class Bot extends djs.Client {
 			this.modalComponentsDir ? [this.modalComponentsDir, (modal) => { this.emit('push.modals', modal) }] : null,
 			this.predefinedMessagesDir ? [this.predefinedMessagesDir, (message) => { this.emit('push.predefinedMessages', message) }] : null,
 		)
-			.filter((s) => s !== null && typeof s[0] !== "function")
-			.forEach((s) => rds(s![0] as string).filter((f) => f !== 'example.js').map((f: any) => require(`${s![0] as string}/${f}`)).forEach(s![1] as (arg0: any) => void));
+			.filter((element) => element !== null)
+			.forEach((element) => fs.readdirSync(element[0] as string).filter((file) => file !== 'example.js').map((file) => require(`${element[0] as string}/${file}`)).forEach(element[1] as (arg0: any) => void));
 		this.emit('push.events', {
 			event: 'ready',
 			execute: () => {
@@ -703,9 +625,9 @@ class Bot extends djs.Client {
 		};
 	}
 	iDontKnowWhatThisDoes  = (name: string) => Object.assign(this.runtimeStats.events.sEE, { [`${name}`]: new UtilsClass.RuntimeStatistics() });
-	// @ts-expect-error
+	// @ts-expect-error This stops the need for an eval with a string arguement, which is unsafe
 	regRTS = (key: string) => (this.runtimeStats[key] as RuntimeStatistics).reg();
-	// @ts-expect-error
+	// @ts-expect-error This stops the need for an eval with a string arguement, which is unsafe
 	bumpRTS = (key: string) => (this.runtimeStats[key] as RuntimeStatistics).exec();
 	setBranding = (branding: djs.EmbedData) => Object.assign(this.branding, branding);
 	start() {

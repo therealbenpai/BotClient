@@ -8,8 +8,8 @@
   "scripts": {
     "compile": "npx tsc --noCheck",
     "jit": "npx tsc --watch",
-    "lint": "eslint .",
-    "lint-fix": "eslint . --fix"
+    "lint": "eslint ./src",
+    "lint-fix": "eslint ./src --fix"
   },
   "keywords": [
     "discord.js",
