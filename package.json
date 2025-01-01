@@ -8,7 +8,8 @@
   "scripts": {
     "compile": "npx tsc",
     "jit": "npx tsc --watch",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "lint-fix": "eslint . --fix"
   },
   "keywords": [
     "discord.js",
@@ -34,6 +35,7 @@
     "@typescript-eslint/eslint-plugin": "^7.8.0",
     "@typescript-eslint/parser": "^7.8.0",
     "eslint": "^8.57.0",
+    "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-jsdoc": "^48.2.3",
     "globals": "^15.1.0",
     "typescript": "^5.4.5",
