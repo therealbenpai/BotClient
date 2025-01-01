@@ -7,23 +7,6 @@ import process from 'process';
 
 type ComponentType = djs.ButtonBuilder | djs.ContextMenuCommandBuilder | djs.SelectMenuBuilder | djs.ModalBuilder;
 
-class General {
-	static Reduce = class {
-		/** Adds two numbers together */
-		static add = (a: number, b: number): number => a + b;
-		/** Subtracts the second number from the first */
-		static subtract = (a: number, b: number) => a - b;
-		/** Multiplies two numbers together */
-		static multiply = (a: number, b: number) => a * b;
-		/** Divides the first number by the second */
-		static divide = (a: number, b: number) => a / b;
-		/** Raises the first number to the power of the second */
-		static exponent = (a: number, b: number) => a ** b;
-		/** Returns the remainder of the first number divided by the second */
-		static modulo = (a: number, b: number) => a % b;
-	}
-}
-
 class TriggerBase {
 	/** Whether or not the trigger is activated */
 	activated: boolean;
@@ -43,7 +26,7 @@ class BaseComponent {
 	/** The Type of Component that this is */
 	data: ComponentType;
 	/** The Function that is called when the Component is interacted with */
-	async execute(client: Bot, interaction: djs.BaseInteraction): Promise<void> { }
+	async execute(_client: Bot, _interaction: djs.BaseInteraction): Promise<void> { }
 	constructor(name: string, info: ComponentInfo, data: ComponentType) {
 		this.name = name;
 		this.info = info;
@@ -66,12 +49,12 @@ class TriggerMessage extends TriggerBase {
 	suffixes: string[];
 	/** The regular expressions that the message can match */
 	regex: RegExp[];
-	constructor(activated: boolean, prefix: boolean, config: { prefixes: string[] | null; contains: string[] | null; suffixes: string[] | null; regex: RegExp[] | null; } | undefined) {
+	constructor(activated: boolean, prefix: boolean, config: { prefixes: string[] | null; contains: string[] | null; suffixes: string[] | null; regex: RegExp[] | null; } ) {
 		super(activated, prefix);
-		this.prefixes = config!.prefixes ?? [];
-		this.contains = config!.contains ?? [];
-		this.suffixes = config!.suffixes ?? [];
-		this.regex = config!.regex ?? [];
+		this.prefixes = config.prefixes ?? [];
+		this.contains = config.contains ?? [];
+		this.suffixes = config.suffixes ?? [];
+		this.regex = config.regex ?? [];
 	}
 };
 
@@ -237,15 +220,15 @@ class ComponentInfo {
  * A class that works with times
  */
 class Timer {
-	static STMDict2 = new Map()
-		.set('y', ['year', 31104e6])
-		.set('M', ['month', 2592e6])
-		.set('d', ['day', 864e5])
-		.set('h', ['hour', 36e5])
-		.set('m', ['minute', 6e4])
-		.set('s', ['second', 1e3]) as Map<string, [string, number]>;
-	static stm = (v: string, k: string) => Number(v.slice(0, -1)) * (this.STMDict2.get(k)!.at(1) as number);
-	static ts = {
+	static unitsToMSDict = new Map()
+		.set('y', ['year', 365 * 24 * 60 * 60 * 1000])
+		.set('M', ['month', 30 * 24 * 60 * 60 * 1000])
+		.set('d', ['day', 24 * 60 * 60 * 1000])
+		.set('h', ['hour', 60 * 60 * 1000])
+		.set('m', ['minute', 60 * 1000])
+		.set('s', ['second', 1 * 1000]) as Map<string, [string, number]>;
+	static unitsToMS = (amount: string, unit: string) => Number(amount.slice(0, -1)) * (this.unitsToMSDict.get(unit)!.at(1) as number);
+	static timeFormatOptions = {
 		locale: 'en-US',
 		options: {
 			year: 'numeric',
@@ -260,12 +243,12 @@ class Timer {
 		} as Intl.DateTimeFormatOptions,
 	};
 	/** Converts a Date or number to a timestamp */
-	static timestamp = (value: Date | number) => new Intl.DateTimeFormat(this.ts.locale, this.ts.options).format(value);
+	static timestamp = (value: Date | number) => new Intl.DateTimeFormat(this.timeFormatOptions.locale, this.timeFormatOptions.options).format(value);
 	/** Converts a string to milliseconds */
 	static stringToMilliseconds = (timeString: string) => timeString
 		.split(' ')
-		.map((value: string) => this.stm(value, value.slice(-1)))
-		.reduce(General.Reduce.add);
+		.map((value: string) => this.unitsToMS(value, value.slice(-1)))
+		.reduce((a, b) => a + b);
 	/** Converts a string to seconds */
 	static stringToSeconds = (timeString: string) => this.stringToMilliseconds(timeString) / 1e3;
 	/** Converts a string to minutes */
@@ -284,31 +267,6 @@ class List {
 	static or = (value: string[]) => this.quick(value, 'disjunction');
 }
 
-/**
- * A class that contains methods for processing text
- */
-class TextSym {
-	/** Quickly process a yes/no boolean value */
-	static quickProcess = (value: any, yes: string, no: string) => value ? yes : no;
-	/** Process a boolean value into a yes/no string */
-	static yn = (value: any) => this.quickProcess(value, 'Yes', 'No');
-	/** Process a boolean value into a true/false string */
-	static tf = (value: any) => this.quickProcess(value, 'True', 'False');
-	/** Process a boolean value into an on/off string */
-	static onOff = (value: any) => this.quickProcess(value, 'On', 'Off');
-	/** Process a boolean value into an enabled/disabled string */
-	static enabledDisabled = (value: any) => this.quickProcess(value, 'Enabled', 'Disabled');
-	/** Process a boolean value into an active/inactive string */
-	static activeInactive = (value: any) => this.quickProcess(value, 'Active', 'Inactive');
-	/** Process a boolean value into a success/failure string */
-	static successFailure = (value: any) => this.quickProcess(value, 'Success', 'Failure');
-	/** Process a boolean value into a pass/fail string */
-	static passFail = (value: any) => this.quickProcess(value, 'Pass', 'Fail');
-	/** Process a string into a pluralized string based on a value */
-	static pluralize = (value: any, text: string) => `${text}${value > 0 ? 's' : ''}`;
-	/** Join a long set of text into a single string value */
-	static longText = (joiner: string, ...value: any[]) => value.join(joiner);
-}
 
 class Markdown {
 	/** Quickly process a string with a prefix and suffix */
@@ -352,17 +310,6 @@ class Mentions {
 	static timestamp = (timestamp: string, format = 'f') => this.quickProcess('t:', timestamp, `:${format}`);
 }
 
-/**
- * A class that contains methods for creating embeds
- */
-class Embed {
-	/** Quickly create a field for an embed */
-	static Field = (name: string, value: string, inline = false) => ({ name, value, inline });
-	/** Quickly create an author for an embed */
-	static Author = (name: string, url: string | undefined | null = null, iconURL: string | undefined | null = null) => ({ name, url, iconURL });
-	/** Quickly create a footer for an embed */
-	static Footer = (text: string, url: string | undefined | null = null) => ({ text, url });
-}
 
 class DiscordUtils {
 	/**
@@ -375,17 +322,13 @@ class DiscordUtils {
 	 */
 	static Mentions = Mentions;
 
-	/**
-	 * A class that contains methods for creating embeds
-	 */
-	static Embed = Embed;
 }
 
 class Event {
 	/** The name of the event */
 	event: string;
 	/** The function that is called when the event is emitted */
-	async execute(client: Bot, ...args: any): Promise<void> { }
+	async execute(_client: Bot, ..._args: any): Promise<void> { }
 	constructor(event: string) {
 		this.event = event;
 	}
@@ -396,7 +339,7 @@ class Trigger {
 	/** The name of the trigger */
 	name: string;
 	/** Whether or not the trigger is disabled */
-	globalDisable: boolean;
+	disabled: boolean;
 	/** The configuration for the trigger */
 	triggerConfig: {
 		message: TriggerMessage;
@@ -405,21 +348,18 @@ class Trigger {
 		user: TriggerUser;
 	};
 	/** The function that is called when the trigger is activated */
-	async execute(client: Bot, message: djs.Message): Promise<void> { }
-	constructor(name: string, message: TriggerMessage, channel: TriggerChannel, role: TriggerRole, user: TriggerUser) {
+	execute: ClientInteraction<djs.Message>;
+	constructor(name: string, message: TriggerMessage, channel: TriggerChannel, role: TriggerRole, user: TriggerUser, handler: ClientInteraction<djs.Message>) {
 		this.name = name;
-		this.globalDisable = false;
+		this.disabled = false;
 		this.triggerConfig = {
 			message,
 			channel,
 			role,
 			user,
 		};
+		this.execute = handler;
 	}
-	/** Set whether or not the trigger is disabled */
-	setGlobalDisable = (newValue: Boolean) => Object.assign(this, { globalDisable: newValue });
-	/** Set the function that is called when the trigger is activated */
-	setExecute = (handler: ClientInteraction<djs.Message>) => Object.assign(this, { execute: handler });
 	/** The class that represents the execution conditions dealing with messages for a trigger */
 	static Message = TriggerMessage;
 	/** The class that represents the execution conditions dealing with channels for a trigger */
@@ -457,12 +397,12 @@ class Command {
 	/** The data for the command */
 	data: djs.SlashCommandBuilder;
 	/** The function that is called when the command is executed */
-	async commandExecute(client: Bot, interaction: djs.CommandInteraction): Promise<void> { };
+	commandExecute: ClientInteraction<djs.Interaction>;
 	/** The function that is called when the command is executed */
-	async messageExecute(client: Bot, message: djs.Message): Promise<void> { };
+	messageExecute: ClientInteraction<djs.Message>;
 	/** The function that is called when the command's autocomplete action is called */
-	async autocomplete(client: Bot, interaction: djs.AutocompleteInteraction): Promise<void> { };
-	constructor(name: string, triggers: string[], config: CommandInfo, restrictions: CommandRestrictions, types: { text: boolean, slash: boolean }, data: djs.SlashCommandBuilder) {
+	autocomplete: ClientInteraction<djs.AutocompleteInteraction>;
+	constructor(name: string, triggers: string[], config: CommandInfo, restrictions: CommandRestrictions, types: { text: boolean, slash: boolean }, data: djs.SlashCommandBuilder, messageExecuteHandler: ClientInteraction<djs.Message>, commandExecuteHandler: ClientInteraction<djs.Interaction>, autocompleteHandler: ClientInteraction<djs.AutocompleteInteraction>) {
 		this.name = name;
 		this.triggers = triggers;
 		this.info = {
@@ -481,63 +421,17 @@ class Command {
 		this.disabled = config.disabled;
 		this.type = types;
 		this.data = data;
+		this.messageExecute = messageExecuteHandler;
+		this.commandExecute = commandExecuteHandler;
+		this.autocomplete = autocompleteHandler;
 	}
-	/** Set the function that is called when the slash command is executed */
-	setCommand = (handler: ClientInteraction<djs.ChatInputCommandInteraction>) => Object.assign(this, { commandExecute: handler });
-	/** Set the function that is called when the text command is executed */
-	setMessage = (handler: ClientInteraction<djs.Message>) => Object.assign(this, { messageExecute: handler });
-	/** Set the function that is called when the autocomplete action is called */
-	setAutocomplete = (handler: ClientInteraction<djs.AutocompleteInteraction>) => Object.assign(this, { autocomplete: handler });
 	/** The class that represents the restrictions that can be placed on a command */
 	static Restrictions = CommandRestrictions;
 	/** The class that contains information about a command */
 	static Info = CommandInfo;
 };
 
-class Message {
-	/** The name of the message */
-	name: string;
-	/** The display name of the message */
-	displayName: string;
-	/** The function that is called when the message is called */
-	//@ts-expect-error
-	async getValue(client: Bot): Promise<djs.APIMessage> {}
-	constructor(name: string, displayName: string) {
-		this.name = name;
-		this.displayName = displayName;
-	}
-	content = (handler: (client: Bot) => djs.APIMessage) => Object.assign(this, { getValue: handler });
-};
 
-class DiscordInitializers {
-	/** A class that represents a message trigger */
-	static Trigger = Trigger
-	/** A class that represents a command */
-	static Command = Command
-	/** A class that represents a message */
-	static Message = Message
-	/** A class that represents a button */
-	static Button = ButtonComponent;
-	/** A class that represents a context menu */
-	static ContextMenu = ContextMenuComponent;
-	/** A class that represents a modal */
-	static Modal = ModalComponent;
-	/** A class that represents a select menu */
-	static SelectMenu = SelectMenuComponent;
-	/** A class that represents the information for a component */
-	static ComponentInfo = ComponentInfo;
-	/** A class that represents an event */
-	static Event = Event;
-};
-
-/**
- * A class that contains methods for interacting with the Discord API
- */
-class Discord {
-	static Utils = DiscordUtils;
-	/** A class that contains methods for interacting with the Discord API */
-	static Initializers = DiscordInitializers;
-}
 class RuntimeStatistics {
 	/** The number of times `X` has been registered */
 	registered: number;
@@ -553,24 +447,15 @@ class RuntimeStatistics {
 	exec = () => ++this.executed;
 }
 const thisSetter = (t: { name: string }) => { throw new ReferenceError(`${t.name} is Read - Only`) };
-class UtilsClass extends General {
+class UtilsClass {
 	static Time = Timer;
-	static Discord = Discord;
-	static Text = TextSym;
+
 	static List = List;
 	static RuntimeStatistics = RuntimeStatistics;
 
 	get Time() { return Timer }
 
 	set Time(_) { thisSetter(Timer) }
-
-	get Discord() { return Discord }
-
-	set Discord(_) { thisSetter(Discord) }
-
-	get Text() { return TextSym }
-
-	set Text(_) { thisSetter(TextSym) }
 
 	get List() { return List }
 
@@ -644,9 +529,7 @@ class Bot extends djs.Client {
 	Buttons: djs.Collection<string, ButtonComponent>;
 	SelectMenus: djs.Collection<string, SelectMenuComponent>;
 	ContextMenus: djs.Collection<string, ContextMenuComponent>;
-	Messages: djs.Collection<string, Message>;
 	Triggers: djs.Collection<string, Trigger>;
-	PredefinedMessages: djs.Collection<string, Message>;
 	Statuses: djs.Collection<number, djs.ActivityOptions>;
 	Utils: typeof UtilsClass;
 	branding: djs.EmbedData;
@@ -654,15 +537,15 @@ class Bot extends djs.Client {
 	constructor(id: string, token: string, prefix: string, options?: BotInitalizationOptions) {
 		super({
 			intents: Object.values(djs.GatewayIntentBits) // All Intents
-			.filter(value => {
-				if (typeof value === 'string') return false;
-				if (options?.removedIntents) return !options.removedIntents.includes(value);
+			.filter((value) => {
+				if (typeof value === 'string') {return false;}
+				if (options?.removedIntents) {return !options.removedIntents.includes(value);}
 				return true;
 			}) as djs.GatewayIntentBits[],
 			partials: Object.values(djs.Partials) // All Partials
-			.filter(value => {
-				if (typeof value === 'string') return false;
-				if (options?.removedPartials) return !options.removedPartials.includes(value);
+			.filter((value) => {
+				if (typeof value === 'string') {return false;}
+				if (options?.removedPartials) {return !options.removedPartials.includes(value);}
 				return true;
 			}) as djs.Partials[],
 			presence: {
@@ -719,9 +602,7 @@ class Bot extends djs.Client {
 		this.Buttons = new djs.Collection();
 		this.SelectMenus = new djs.Collection();
 		this.ContextMenus = new djs.Collection();
-		this.Messages = new djs.Collection();
 		this.Triggers = new djs.Collection();
-		this.PredefinedMessages = new djs.Collection();
 		this.Statuses = new djs.Collection();
 		this.Utils = UtilsClass;
 		this.branding = {
@@ -733,7 +614,7 @@ class Bot extends djs.Client {
 		this
 			.on('push.events', (event: Event) => {
 				this.regRTS('events');
-				this.gev(event.event);
+				this.iDontKnowWhatThisDoes(event.event);
 				this.Events.set(event.event, event);
 				this.on(event.event, async (...args) => {
 					this.bumpRTS(`events.sEE.${event.event}`);
@@ -742,7 +623,7 @@ class Bot extends djs.Client {
 			})
 			.on('push.commands', (command: Command) => {
 				this.Commands.set(command.name, command);
-				if (command.type.text) this.regRTS('commands.text');
+				if (command.type.text) {this.regRTS('commands.text');}
 				if (command.type.slash) {
 					this.regRTS('commands.slash');
 					// @ts-expect-error
@@ -752,7 +633,7 @@ class Bot extends djs.Client {
 			.on('push.triggers', (trigger: Trigger) => {
 				this.Triggers.set(trigger.name, trigger);
 				Object.entries(trigger.triggerConfig)
-					.forEach(value => value[1].activated
+					.forEach((value) => value[1].activated
 						? this.regRTS(`triggers.${value[0]}`)
 						: null
 					);
@@ -774,32 +655,26 @@ class Bot extends djs.Client {
 			.on('push.modals', (modal: ModalComponent) => {
 				this.Modals.set(modal.name, modal);
 				this.regRTS('components.modals');
-			})
-			.on('push.predefinedMessages', (message: Message) => {
-				if (!(message instanceof Message)) return;
-				const gv = message.getValue;
-				this.PredefinedMessages.set(message.name, Object.assign(message, { getValue: (c: Bot) => { this.bumpRTS('predefinedMessages'); return gv(c); } }));
-				this.regRTS('predefinedMessages');
 			});
 		const rds = fs.readdirSync;
 		Array.of(
 			this.eventsDir ? [this.eventsDir, (event: string) => { this.emit('push.events', event) }] : null,
-			this.commandsDir ? [this.commandsDir, command => { this.emit('push.commands', command) }] : null,
-			this.triggersDir ? [this.triggersDir, trigger => { this.emit('push.triggers', trigger) }] : null,
-			this.buttonsDir ? [this.buttonsDir, button => { this.emit('push.buttons', button) }] : null,
-			this.contextMenusDir ? [this.contextMenusDir, contextMenu => { this.emit('push.contextMenus', contextMenu) }] : null,
-			this.selectMenusDir ? [this.selectMenusDir, selectMenu => { this.emit('push.selectMenus', selectMenu) }] : null,
-			this.modalComponentsDir ? [this.modalComponentsDir, modal => { this.emit('push.modals', modal) }] : null,
-			this.predefinedMessagesDir ? [this.predefinedMessagesDir, message => { this.emit('push.predefinedMessages', message) }] : null,
+			this.commandsDir ? [this.commandsDir, (command) => { this.emit('push.commands', command) }] : null,
+			this.triggersDir ? [this.triggersDir, (trigger) => { this.emit('push.triggers', trigger) }] : null,
+			this.buttonsDir ? [this.buttonsDir, (button) => { this.emit('push.buttons', button) }] : null,
+			this.contextMenusDir ? [this.contextMenusDir, (contextMenu) => { this.emit('push.contextMenus', contextMenu) }] : null,
+			this.selectMenusDir ? [this.selectMenusDir, (selectMenu) => { this.emit('push.selectMenus', selectMenu) }] : null,
+			this.modalComponentsDir ? [this.modalComponentsDir, (modal) => { this.emit('push.modals', modal) }] : null,
+			this.predefinedMessagesDir ? [this.predefinedMessagesDir, (message) => { this.emit('push.predefinedMessages', message) }] : null,
 		)
-			.filter(s => s !== null && typeof s[0] !== "function")
-			.forEach(s => rds(s![0] as string).filter(f => f !== 'example.js').map((f: any) => require(`${s![0] as string}/${f}`)).forEach(s![1] as (arg0: any) => void));
+			.filter((s) => s !== null && typeof s[0] !== "function")
+			.forEach((s) => rds(s![0] as string).filter((f) => f !== 'example.js').map((f: any) => require(`${s![0] as string}/${f}`)).forEach(s![1] as (arg0: any) => void));
 		this.emit('push.events', {
 			event: 'ready',
 			execute: () => {
 				console.log('Bot is ready');
 				const status = this.Statuses.random()
-				if (!status) return;
+				if (!status) {return;}
 				setInterval(() => this.user!.setPresence({ activities: [status] }), 15e3)
 			},
 		})
@@ -827,9 +702,11 @@ class Bot extends djs.Client {
 			},
 		};
 	}
-	gev = (name: string) => Object.assign(this.runtimeStats.events.sEE, { [`${name}`]: new UtilsClass.RuntimeStatistics() });
-	regRTS = (key: string) => (eval(`this.runtimeStats.${key}`) as RuntimeStatistics).reg();
-	bumpRTS = (key: string) => (eval(`this.runtimeStats.${key}`) as RuntimeStatistics).exec();
+	iDontKnowWhatThisDoes  = (name: string) => Object.assign(this.runtimeStats.events.sEE, { [`${name}`]: new UtilsClass.RuntimeStatistics() });
+	// @ts-expect-error
+	regRTS = (key: string) => (this.runtimeStats[key] as RuntimeStatistics).reg();
+	// @ts-expect-error
+	bumpRTS = (key: string) => (this.runtimeStats[key] as RuntimeStatistics).exec();
 	setBranding = (branding: djs.EmbedData) => Object.assign(this.branding, branding);
 	start() {
 		void this.RESTClient.put(Routes.applicationCommands(this.botId), { body: this.interactions });
