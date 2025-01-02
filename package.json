@@ -7,11 +7,9 @@
   "types": "@types/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "docs": "npx typedoc --options typedoc.config.cjs",
     "compile": "npx tsc --noCheck",
-    "jit": "npx tsc --watch",
-    "update": "eslint --fix && typedoc --options typedoc.config.cjs",
-    "lint": "eslint ."
+    "lint": "eslint ./src",
+    "lint:fix": "eslint ./src --fix"
   },
   "keywords": [
     "discord.js",
@@ -29,7 +27,8 @@
     "@discordjs/rest": "^2.4.0",
     "discord-api-types": "^0.37.37",
     "discord.js": "^14.8.0",
-    "dotenv": "^16.0.3"
+    "dotenv": "^16.0.3",
+    "eslint-plugin-import": "^2.31.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.2.0",
