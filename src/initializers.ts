@@ -216,7 +216,7 @@ class Event {
 	/** The name of the event */
 	event: djs.Events;
 	/** The function that is called when the event is emitted */
-	execute: ClientInteraction<any>;
+	execute: (client: Bot, ...args: any[]) => void;
 	constructor(event: djs.Events, handler: ClientInteraction<any>) {
 		this.event = event;
         this.execute = handler;

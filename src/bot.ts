@@ -7,11 +7,11 @@ import process from 'process';
 
 import { Command, Event, Trigger, ButtonComponent, ContextMenuComponent, ModalComponent, SelectMenuComponent, Message } from './initializers';
 
-import UtilsClass, {RuntimeStatistics} from './utils';
+import UtilsClass, { RuntimeStatistics } from './utils';
 
 type LoopedObj<T extends Record<string, T>> = T
 
-function processStringKey<T extends LoopedObj<Record<string, any>>> (key: string, initialObj: T) {
+function processStringKey<T extends LoopedObj<Record<string, any>>>(key: string, initialObj: T) {
     let currObj = initialObj;
     while (key.includes('.')) {
         const [first, ...rest] = key.split('.');
@@ -182,6 +182,15 @@ class Bot extends djs.Client {
         this.interactions = [];
         this.RESTClient = new REST({ version: '10' }).setToken(this.botToken);
         this
+            .on('push.events', (event: Event) => {
+                this.regRTS('events');
+                this.generateEvent(event.event);
+                this.Events.set(event.event, event);
+                this.on(event.event as keyof djs.ClientEvents, async (...args) => {
+                    this.bumpRTS(`events.sEE.${event.event}`);
+                    await event.execute(this, ...args)
+                });
+            })
             .on('push.commands', (command: Command) => {
                 this.Commands.set(command.name, command);
                 if (command.type.text) { this.regRTS('commands.text'); }
@@ -214,8 +223,13 @@ class Bot extends djs.Client {
             .on('push.modals', (modal: ModalComponent) => {
                 this.Modals.set(modal.name, modal);
                 this.regRTS('components.modals');
+            })
+            .on('push.predefinedMessages', (message: Message) => {
+                if (!(message instanceof Message)) return;
+                const gv = message.getValue;
+                this.Messages.set(message.name, Object.assign(message, { getValue: (c: Bot) => { this.bumpRTS('predefinedMessages'); return gv(c); } }));
+                this.regRTS('predefinedMessages');
             });
-
         if (this.eventsDir) {
             const events = fs.readdirSync(this.eventsDir)
                 .filter((file) => file !== 'example.js')
