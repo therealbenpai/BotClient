@@ -7,7 +7,7 @@ import process from 'process';
 
 import { Command, Event, Trigger, ButtonComponent, ContextMenuComponent, ModalComponent, SelectMenuComponent, Message } from './initializers';
 
-import UtilsClass, { RuntimeStatistics } from './utils';
+import UtilsClass, {RuntimeStatistics} from './utils';
 
 type LoopedObj<T extends Record<string, T>> = T
 
@@ -16,7 +16,11 @@ function processStringKey<T extends LoopedObj<Record<string, any>>>(key: string,
     while (key.includes('.')) {
         const [first, ...rest] = key.split('.');
         key = rest.join('.');
-        currObj = currObj[first];
+        if (currObj[first]) {
+            // The following line is safe because the while loop will only run if the key is valid
+            // eslint-disable-next-line ts/no-unsafe-assignment
+            currObj = currObj[first];
+        }
     }
     if (currObj) {
         return currObj[key];
@@ -24,7 +28,7 @@ function processStringKey<T extends LoopedObj<Record<string, any>>>(key: string,
     return null;
 }
 
-interface BotInitalizationOptions {
+interface BotInitializationOptions {
     /** The directory the commands are located in */
     commandsDir?: string,
     /** The directory the events are located in */
@@ -103,7 +107,7 @@ class Bot extends djs.Client {
     Utils: typeof UtilsClass;
     branding: djs.EmbedData;
     private RESTClient: REST;
-    constructor(id: string, token: string, prefix: string, options?: BotInitalizationOptions) {
+    constructor(id: string, token: string, prefix: string, options?: BotInitializationOptions) {
         super({
             intents: Object.values(djs.GatewayIntentBits) // All Intents
                 .filter((value) => {
@@ -186,9 +190,9 @@ class Bot extends djs.Client {
                 this.regRTS('events');
                 this.generateEvent(event.event);
                 this.Events.set(event.event, event);
-                this.on(event.event as keyof djs.ClientEvents, async (...args) => {
+                this.on(event.event as keyof djs.ClientEvents, (...args) => {
                     this.bumpRTS(`events.sEE.${event.event}`);
-                    await event.execute(this, ...args)
+                    event.execute(this, ...args)
                 });
             })
             .on('push.commands', (command: Command) => {
@@ -225,9 +229,20 @@ class Bot extends djs.Client {
                 this.regRTS('components.modals');
             })
             .on('push.predefinedMessages', (message: Message) => {
-                if (!(message instanceof Message)) return;
-                const gv = message.getValue;
-                this.Messages.set(message.name, Object.assign(message, { getValue: (c: Bot) => { this.bumpRTS('predefinedMessages'); return gv(c); } }));
+                if (!(message instanceof Message)) {return;}
+                const getValue = (arg: Bot) => message.getValue(arg);
+                this.Messages.set(
+                    message.name,
+                    Object.assign(
+                        message,
+                        {
+                            getValue: (client: Bot) => {
+                                client.bumpRTS('predefinedMessages');
+                                return getValue(client);
+                            },
+                        }
+                    )
+                );
                 this.regRTS('predefinedMessages');
             });
         if (this.eventsDir) {
