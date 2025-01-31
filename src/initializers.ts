@@ -1,4 +1,4 @@
-import * as djs from 'discord.js';
+import djs from 'discord.js';
 
 import Bot from './bot';
 

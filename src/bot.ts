@@ -1,8 +1,8 @@
-import * as djs from 'discord.js';
+import djs from 'discord.js';
 import { Routes } from 'discord-api-types/v10';
 import { REST } from '@discordjs/rest';
-import * as fs from 'fs';
-import * as os from 'os';
+import fs from 'fs';
+import os from 'os';
 import process from 'process';
 
 import { Command, Event, Trigger, ButtonComponent, ContextMenuComponent, ModalComponent, SelectMenuComponent, Message } from './initializers';
@@ -140,24 +140,24 @@ class Bot extends djs.Client {
         Object.assign(this, options);
         this.runtimeStats = {
             commands: {
-                text: new UtilsClass.RuntimeStatistics(),
-                slash: new UtilsClass.RuntimeStatistics(),
+                text: new RuntimeStatistics(),
+                slash: new RuntimeStatistics(),
             },
             triggers: {
                 registered: 0,
-                role: new UtilsClass.RuntimeStatistics(),
-                user: new UtilsClass.RuntimeStatistics(),
-                channel: new UtilsClass.RuntimeStatistics(),
-                message: new UtilsClass.RuntimeStatistics(),
+                role: new RuntimeStatistics(),
+                user: new RuntimeStatistics(),
+                channel: new RuntimeStatistics(),
+                message: new RuntimeStatistics(),
             },
-            events: Object.assign(new UtilsClass.RuntimeStatistics(), { sEE: {} }),
+            events: Object.assign(new RuntimeStatistics(), { sEE: {} }),
             components: {
-                modals: new UtilsClass.RuntimeStatistics(),
-                buttons: new UtilsClass.RuntimeStatistics(),
-                selectMenus: new UtilsClass.RuntimeStatistics(),
-                contextMenus: new UtilsClass.RuntimeStatistics(),
+                modals: new RuntimeStatistics(),
+                buttons: new RuntimeStatistics(),
+                selectMenus: new RuntimeStatistics(),
+                contextMenus: new RuntimeStatistics(),
             },
-            predefinedMessages: new UtilsClass.RuntimeStatistics(),
+            predefinedMessages: new RuntimeStatistics(),
         };
         this.baseDir = process.cwd();
         this.configs = {
@@ -299,7 +299,7 @@ class Bot extends djs.Client {
                 console.log('Bot is ready');
                 const status = this.Statuses.random()
                 if (!status) { return; }
-                setInterval(() => void this.user?.setPresence({ activities: [status] }), 15e3)
+                setInterval(() => {this.user?.setPresence({ activities: [status] })}, 15e3)
             },
         })
     }
@@ -326,7 +326,7 @@ class Bot extends djs.Client {
             },
         };
     }
-    generateEvent = (name: string) => Object.assign(this.runtimeStats.events.sEE, { [`${name}`]: new UtilsClass.RuntimeStatistics() });
+    generateEvent = (name: string) => Object.assign(this.runtimeStats.events.sEE, { [`${name}`]: new RuntimeStatistics() });
     regRTS = (key: string) => {
         const final = processStringKey(key, this.runtimeStats) as RuntimeStatistics;
         if (final) {
@@ -341,8 +341,8 @@ class Bot extends djs.Client {
     }
     setBranding = (branding: djs.EmbedData) => Object.assign(this.branding, branding);
     start() {
-        void this.RESTClient.put(Routes.applicationCommands(this.botId), { body: this.interactions.map((value) => value.toJSON()) });
-        void this.login(this.botToken);
+        this.RESTClient.put(Routes.applicationCommands(this.botId), { body: this.interactions.map((value) => value.toJSON()) });
+        this.login(this.botToken);
     }
 }
 
