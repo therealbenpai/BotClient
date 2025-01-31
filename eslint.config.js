@@ -1,143 +1,143 @@
-import globals from "globals";
-import tsEslint from "typescript-eslint";
-import tsPlugin from "@typescript-eslint/eslint-plugin";
-import TSParser from "@typescript-eslint/parser";
-import jsDoc from "eslint-plugin-jsdoc";
-import importPlugin from 'eslint-plugin-import';
-import js from '@eslint/js';
+import globals from 'globals'
+import tsEslint from 'typescript-eslint'
+import tsPlugin from '@typescript-eslint/eslint-plugin'
+import TSParser from '@typescript-eslint/parser'
+import jsDoc from 'eslint-plugin-jsdoc'
+import importPlugin from 'eslint-plugin-import'
+import js from '@eslint/js'
 
 export default [
-    importPlugin.flatConfigs.recommended,
-    ...tsEslint.configs.strict,
-    {
-        files: [
-            'src/**/*.ts',
-        ],
-        languageOptions: {
-            ecmaVersion: 6,
-            globals: globals.node,
-            sourceType: 'module',
-            parser: TSParser,
-            parserOptions: {
-                project: true,
-                tsconfigRootDir: import.meta.dirname,
-            },
-        },
-        plugins: {
-            jsdoc: jsDoc,
-            ts: tsPlugin,
-        },
-        rules: {
-            ...js.configs.recommended.rules,
-            'no-unused-vars': 'off', // We use the TypeScript version
-            'arrow-body-style': ['error', 'as-needed'],
-            'arrow-parens': ['error'],
-            'arrow-spacing': 'error',
-            'brace-style': ['error', '1tbs', { allowSingleLine: true }],
-            'comma-dangle': ['error', 'always-multiline'],
-            'comma-spacing': 'error',
-            'comma-style': 'error',
-            'computed-property-spacing': 'error',
-            'consistent-return': 'error',
-            // 'curly': ['error', 'multi-or-nest'],
-            'eol-last': 'error',
-            'eqeqeq': 'error',
-            'func-call-spacing': 'error',
-            'jsdoc/check-values': 'error',
-            'jsdoc/require-description': 'error',
-            'key-spacing': 'error',
-            'keyword-spacing': 'error',
-            'linebreak-style': 'error',
-            'prefer-const': 'error',
-            'ts/adjacent-overload-signatures': 'error',
-            'ts/array-type': 'error',
-            'ts/await-thenable': 'error',
-            'ts/class-literal-property-style': 'error',
-            'ts/consistent-generic-constructors': 'error',
-            'ts/consistent-indexed-object-style': 'error',
-            'ts/consistent-type-assertions': 'error',
-            'ts/consistent-type-definitions': 'error',
-            'ts/no-array-constructor': 'error',
-            'ts/no-base-to-string': 'error',
-            'ts/no-confusing-non-null-assertion': 'error',
-            'ts/no-duplicate-enum-values': 'error',
-            'ts/no-duplicate-type-constituents': 'error',
-            'ts/no-extra-non-null-assertion': 'error',
-            'ts/no-floating-promises': 'error',
-            'ts/no-implied-eval': 'error',
-            'ts/no-inferrable-types': 'error',
-            'ts/no-loss-of-precision': 'error',
-            'ts/no-misused-new': 'error',
-            'ts/no-misused-promises': 'error',
-            'ts/no-non-null-asserted-optional-chain': 'error',
-            'ts/no-redundant-type-constituents': 'error',
-            'ts/no-this-alias': 'error',
-            'ts/no-unnecessary-type-assertion': 'error',
-            'ts/no-unnecessary-type-constraint': 'error',
-            'ts/no-unsafe-assignment': 'error',
-            'ts/no-unsafe-call': 'error',
-            'ts/no-unsafe-declaration-merging': 'error',
-            'ts/no-unsafe-enum-comparison': 'error',
-            'ts/no-unsafe-member-access': 'error',
-            'ts/no-var-requires': 'error',
-            'ts/non-nullable-type-assertion-style': 'error',
-            'ts/prefer-as-const': 'error',
-            'ts/prefer-for-of': 'error',
-            'ts/prefer-function-type': 'error',
-            'ts/prefer-namespace-keyword': 'error',
-            'ts/prefer-nullish-coalescing': 'error',
-            'ts/prefer-optional-chain': 'error',
-            'ts/prefer-string-starts-ends-with': 'error',
-            'ts/require-await': 'error',
-            'ts/restrict-plus-operands': 'error',
-            'ts/restrict-template-expressions': 'error',
-            'ts/triple-slash-reference': 'error',
-            'ts/unbound-method': 'error',
-            'camelcase': ['warn', { properties: 'never' }],
-            'curly': 'warn',
-            'dot-notation': 'warn',
-            'no-constant-condition': 'warn',
-            'no-empty': 'warn',
-            'no-irregular-whitespace': 'warn',
-            'no-prototype-builtins': 'warn',
-            'no-template-curly-in-string': 'warn',
-            'no-useless-escape': 'warn',
-            'no-useless-rename': 'warn',
-            'object-shorthand': 'warn',
-            'prefer-template': 'warn',
-            'no-extra-boolean-cast': 'off',
-            'import/consistent-type-specifier-style': ['warn', 'prefer-top-level'],
-            'import/no-cycle': 'warn',
-            'import/no-self-import': 'error',
-            'import/no-useless-path-segments': 'error',
-            'import/no-unresolved': 'warn',
-            'no-nested-ternary': 'error',
-            'no-var': 'warn',
-            'no-useless-return': 'warn',
-            "@typescript-eslint/no-unused-vars": [
-                "error",
-                {
-                    "args": "all",
-                    "argsIgnorePattern": "^_",
-                    "caughtErrors": "all",
-                    "caughtErrorsIgnorePattern": "^_",
-                    "destructuredArrayIgnorePattern": "^_",
-                    "varsIgnorePattern": "^_",
-                    "ignoreRestSiblings": true
-                }
-            ],
-            '@typescript-eslint/no-explicit-any': 'warn',
-            '@typescript-eslint/no-this-alias': 'warn',
-            '@typescript-eslint/no-var-requires': 'off',
-            'id-length': ['warn', { min: 3, exceptions: ['_', 'id', 'fs'] }],
-            'no-restricted-syntax': [ // Stopping Array.of being used for conditionals, causing significantly more messy code
-                'warn', // genuinely make this error if you can
-                {
-                    selector: 'CallExpression[callee.object.name=\'Array\'][callee.property.name=\'of\']',
-                    message: 'Don\'t use \'Array.of\'.',
-                },
-            ],
-            '@typescript-eslint/no-extraneous-class': 'warn',
-            '@typescript-eslint/no-non-null-assertion': 'warn'
+  importPlugin.flatConfigs.recommended,
+  ...tsEslint.configs.strict,
+  {
+    files: [
+      'src/**/*.ts'
+    ],
+    languageOptions: {
+      ecmaVersion: 6,
+      globals: globals.node,
+      sourceType: 'module',
+      parser: TSParser,
+      parserOptions: {
+        project: true,
+        tsconfigRootDir: import.meta.dirname
+      }
+    },
+    plugins: {
+      jsdoc: jsDoc,
+      ts: tsPlugin
+    },
+    rules: {
+      ...js.configs.recommended.rules,
+      'no-unused-vars': 'off', // We use the TypeScript version
+      'arrow-body-style': ['error', 'as-needed'],
+      'arrow-parens': ['error'],
+      'arrow-spacing': 'error',
+      'brace-style': ['error', '1tbs', { allowSingleLine: true }],
+      'comma-dangle': ['error', 'always-multiline'],
+      'comma-spacing': 'error',
+      'comma-style': 'error',
+      'computed-property-spacing': 'error',
+      'consistent-return': 'error',
+      // 'curly': ['error', 'multi-or-nest'],
+      'eol-last': 'error',
+      eqeqeq: 'error',
+      'func-call-spacing': 'error',
+      'jsdoc/check-values': 'error',
+      'jsdoc/require-description': 'error',
+      'key-spacing': 'error',
+      'keyword-spacing': 'error',
+      'linebreak-style': 'error',
+      'prefer-const': 'error',
+      'ts/adjacent-overload-signatures': 'error',
+      'ts/array-type': 'error',
+      'ts/await-thenable': 'error',
+      'ts/class-literal-property-style': 'error',
+      'ts/consistent-generic-constructors': 'error',
+      'ts/consistent-indexed-object-style': 'error',
+      'ts/consistent-type-assertions': 'error',
+      'ts/consistent-type-definitions': 'error',
+      'ts/no-array-constructor': 'error',
+      'ts/no-base-to-string': 'error',
+      'ts/no-confusing-non-null-assertion': 'error',
+      'ts/no-duplicate-enum-values': 'error',
+      'ts/no-duplicate-type-constituents': 'error',
+      'ts/no-extra-non-null-assertion': 'error',
+      'ts/no-floating-promises': 'error',
+      'ts/no-implied-eval': 'error',
+      'ts/no-inferrable-types': 'error',
+      'ts/no-loss-of-precision': 'error',
+      'ts/no-misused-new': 'error',
+      'ts/no-misused-promises': 'error',
+      'ts/no-non-null-asserted-optional-chain': 'error',
+      'ts/no-redundant-type-constituents': 'error',
+      'ts/no-this-alias': 'error',
+      'ts/no-unnecessary-type-assertion': 'error',
+      'ts/no-unnecessary-type-constraint': 'error',
+      'ts/no-unsafe-assignment': 'error',
+      'ts/no-unsafe-call': 'error',
+      'ts/no-unsafe-declaration-merging': 'error',
+      'ts/no-unsafe-enum-comparison': 'error',
+      'ts/no-unsafe-member-access': 'error',
+      'ts/no-var-requires': 'error',
+      'ts/non-nullable-type-assertion-style': 'error',
+      'ts/prefer-as-const': 'error',
+      'ts/prefer-for-of': 'error',
+      'ts/prefer-function-type': 'error',
+      'ts/prefer-namespace-keyword': 'error',
+      'ts/prefer-nullish-coalescing': 'error',
+      'ts/prefer-optional-chain': 'error',
+      'ts/prefer-string-starts-ends-with': 'error',
+      'ts/require-await': 'error',
+      'ts/restrict-plus-operands': 'error',
+      'ts/restrict-template-expressions': 'error',
+      'ts/triple-slash-reference': 'error',
+      'ts/unbound-method': 'error',
+      camelcase: ['warn', { properties: 'never' }],
+      curly: 'warn',
+      'dot-notation': 'warn',
+      'no-constant-condition': 'warn',
+      'no-empty': 'warn',
+      'no-irregular-whitespace': 'warn',
+      'no-prototype-builtins': 'warn',
+      'no-template-curly-in-string': 'warn',
+      'no-useless-escape': 'warn',
+      'no-useless-rename': 'warn',
+      'object-shorthand': 'warn',
+      'prefer-template': 'warn',
+      'no-extra-boolean-cast': 'off',
+      'import/consistent-type-specifier-style': ['warn', 'prefer-top-level'],
+      'import/no-cycle': 'warn',
+      'import/no-self-import': 'error',
+      'import/no-useless-path-segments': 'error',
+      'import/no-unresolved': 'warn',
+      'no-nested-ternary': 'error',
+      'no-var': 'warn',
+      'no-useless-return': 'warn',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          args: 'all',
+          argsIgnorePattern: '^_',
+          caughtErrors: 'all',
+          caughtErrorsIgnorePattern: '^_',
+          destructuredArrayIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          ignoreRestSiblings: true
         }
-    }]
+      ],
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-this-alias': 'warn',
+      '@typescript-eslint/no-var-requires': 'off',
+      'id-length': ['warn', { min: 3, exceptions: ['_', 'id', 'fs'] }],
+      'no-restricted-syntax': [ // Stopping Array.of being used for conditionals, causing significantly more messy code
+        'warn', // genuinely make this error if you can
+        {
+          selector: 'CallExpression[callee.object.name=\'Array\'][callee.property.name=\'of\']',
+          message: 'Don\'t use \'Array.of\'.'
+        }
+      ],
+      '@typescript-eslint/no-extraneous-class': 'warn',
+      '@typescript-eslint/no-non-null-assertion': 'warn'
+    }
+  }]
