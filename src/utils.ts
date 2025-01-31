@@ -60,9 +60,9 @@ class RuntimeStatistics {
         this.executed = 0;
     }
     /** Increment the number of times `X` has been registered */
-    reg = () => ++this.registered;
+    registerCount = () => ++this.registered;
     /** Increment the number of times `X` has been executed */
-    exec = () => ++this.executed;
+    executeCount = () => ++this.executed;
 }
 
 export default {

@@ -330,13 +330,13 @@ class Bot extends djs.Client {
     regRTS = (key: string) => {
         const final = processStringKey(key, this.runtimeStats) as RuntimeStatistics;
         if (final) {
-            final?.reg();
+            final?.registerCount();
         }
     };
     bumpRTS = (key: string) => {
         const final = processStringKey(key, this.runtimeStats) as RuntimeStatistics;
         if (final) {
-            final?.exec();
+            final?.executeCount();
         }
     }
     setBranding = (branding: djs.EmbedData) => Object.assign(this.branding, branding);
