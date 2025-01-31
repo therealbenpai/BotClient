@@ -50,8 +50,6 @@ const List = {
     or: (value: string[]) => new Intl.ListFormat('en-US', { style: 'long', type: 'disjunction' }).format(value), // eslint-disable-line id-length
 }
 
-
-
 class RuntimeStatistics {
     /** The number of times `X` has been registered */
     registered: number;
