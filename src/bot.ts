@@ -8,24 +8,39 @@ import { Trigger } from './triggers';
 import { Command } from './commands';
 import { ButtonComponent, ContextMenuComponent, ModalComponent, SelectMenuComponent } from './components';
 import { Event } from './events';
-import { Utils } from './utils';
+import Utils from './utils';
 
 interface BotInitalizationOptions {
+	/** The directory that contains the command objects */
 	commandsDir?: string,
+	/** The directory that contains the event objects */
 	eventsDir?: string,
+	/** The directory that contains the trigger objects */
 	triggersDir?: string,
+	/** The directory that contains the button objects */
 	buttonsDir?: string,
+	/** The directory that contains the select menu objects */
 	selectMenusDir?: string,
+	/** The directory that contains the context menu objects */
 	contextMenusDir?: string,
+	/** The directory that contains the modal component objects */
 	modalComponentsDir?: string,
+	/** The directory that contains the predefined message objects */
 	predefinedMessagesDir?: string,
+	/** Intents to not be included when initializing the bot */
 	removedIntents?: djs.GatewayIntentBits[],
+	/** Partials not to receive with the bot */
 	removedPartials?: djs.Partials[],
 }
 
+type RTS = InstanceType<typeof Utils.RuntimeStatistics>;
+
 class Bot extends djs.Client {
+	/** The Token of the Bot */
 	private botToken: string;
+	/** The Prefix of the Bot */
 	prefix: string;
+	/** The ID of the Bot */
 	botId: string;
 	buttonsDir: string | undefined;
 	commandsDir: string | undefined;
@@ -35,29 +50,30 @@ class Bot extends djs.Client {
 	predefinedMessagesDir: string | undefined;
 	selectMenusDir: string | undefined;
 	triggersDir: string | undefined;
+	/** Interactions */
 	interactions: (djs.SlashCommandBuilder | djs.ContextMenuCommandBuilder)[]
 	runtimeStats: {
 		commands: {
-			text: InstanceType<typeof Utils.RuntimeStatistics>;
-			slash: InstanceType<typeof Utils.RuntimeStatistics>;
+			text: RTS;
+			slash: RTS;
 		},
 		triggers: {
 			registered: number;
-			role: InstanceType<typeof Utils.RuntimeStatistics>;
-			user: InstanceType<typeof Utils.RuntimeStatistics>;
-			channel: InstanceType<typeof Utils.RuntimeStatistics>;
-			message: InstanceType<typeof Utils.RuntimeStatistics>;
+			role: RTS;
+			user: RTS;
+			channel: RTS;
+			message: RTS;
 		},
-		events: InstanceType<typeof Utils.RuntimeStatistics> & {
-			sEE: Record<string, InstanceType<typeof Utils.RuntimeStatistics>>
+		events: RTS & {
+			sEE: Record<string, RTS>
 		},
 		components: {
-			modals: InstanceType<typeof Utils.RuntimeStatistics>;
-			buttons: InstanceType<typeof Utils.RuntimeStatistics>;
-			selectMenus: InstanceType<typeof Utils.RuntimeStatistics>;
-			contextMenus: InstanceType<typeof Utils.RuntimeStatistics>;
+			modals: RTS;
+			buttons: RTS;
+			selectMenus: RTS;
+			contextMenus: RTS;
 		},
-		predefinedMessages: InstanceType<typeof Utils.RuntimeStatistics>;
+		predefinedMessages: RTS;
 	};
 	baseDir: string;
 	configs: {
@@ -226,8 +242,12 @@ class Bot extends djs.Client {
 			.filter(s => s !== null && typeof s[0] !== "function")
 			.forEach(s => fs.readdirSync(s![0] as string)
 				.filter(file => file !== 'example.js')
-				.map((file: any) => require(`${s![0] as string}/${file}`))
-				.forEach(s![1] as (arg0: any) => void)
+				// eslint-disable-next-line ts/no-misused-promises
+				.forEach(async (file: any) => {
+					// eslint-disable-next-line ts/no-unsafe-assignment
+					const { default: module } = await import(`${s![0] as string}/${file}`);
+					(s![1] as (arg0: any) => void)(module);
+				})
 			);
 		this.emit('push.events', {
 			event: 'ready',
@@ -261,13 +281,15 @@ class Bot extends djs.Client {
 		};
 	}
 	gev = (name: string) => Object.assign(this.runtimeStats.events.sEE, { [`${name}`]: new Utils.RuntimeStatistics() });
-	regRTS = (key: string) => (eval(`this.runtimeStats.${key}`) as InstanceType<typeof Utils.RuntimeStatistics>).reg();
-	bumpRTS = (key: string) => (eval(`this.runtimeStats.${key}`) as InstanceType<typeof Utils.RuntimeStatistics>).exec();
+	regRTS = (key: string) => (eval(`this.runtimeStats.${key}`) as RTS).reg();
+	bumpRTS = (key: string) => (eval(`this.runtimeStats.${key}`) as RTS).exec();
 	setBranding = (branding: djs.EmbedData) => Object.assign(this.branding, branding);
 	start() {
 		void this.RESTClient.put(Routes.applicationCommands(this.botId), { body: this.interactions });
 		void this.login(this.botToken);
 	}
 }
+
+export default Bot;
 
 export { Bot };

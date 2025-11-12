@@ -112,4 +112,4 @@ class Trigger {
 	static User = TriggerUser;
 }
 
-export { Trigger };
+export { Trigger, TriggerMessage, TriggerChannel, TriggerRole, TriggerUser };

@@ -240,4 +240,4 @@ class UtilsClass {
 	set RuntimeStatistics(_) { thisSetter(RuntimeStatistics) }
 }
 
-export { UtilsClass as Utils };
+export default UtilsClass;

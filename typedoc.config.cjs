@@ -1,0 +1,23 @@
+/** @type {import('typedoc').TypeDocOptions} */
+module.exports = {
+    cname: 'bot-builder.benshawmean.com',
+    basePath: "./src",
+    commentStyle: "all",
+    customCss: "docs.cfg.css",
+    darkHighlightTheme: "material-theme-darker",
+    emit: 'both',
+    entryPointStrategy: "resolve",
+    excludeExternals: true,
+    hideGenerator: true,
+    includeVersion: true,
+    json: 'docs/doc.json',
+    lightHighlightTheme: "material-theme-ocean",
+    name: "Discord.js Bot Client",
+    navigationLinks: { GitHub: "https://github.com/therealbenpai/djs-client" },
+    out: 'docs',
+    plugin: ["typedoc-plugin-rename-defaults", "typedoc-plugin-extras", "typedoc-plugin-mdn-links"],
+    pretty: false,
+    readme: "README.md",
+    searchInComments: true,
+    sort: ["static-first", "kind", "enum-value-ascending"],
+};

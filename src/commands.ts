@@ -127,4 +127,4 @@ class Command {
 	static Info = CommandInfo;
 };
 
-export { Command };
+export { Command, CommandRestrictions, CommandInfo };
